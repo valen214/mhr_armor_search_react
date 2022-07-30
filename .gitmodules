@@ -1,0 +1,3 @@
+[submodule "my_common_react_components"]
+	path = my_common_react_components
+	url = https://github.com/valen214/my_common_react_components.git
