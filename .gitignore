@@ -24,4 +24,10 @@ yarn-error.log*
 
 
 
+####################
+
+.vscode
+
+*.log
+
 /*.lnk
