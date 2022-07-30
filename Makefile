@@ -1,6 +1,9 @@
 
 
 
+serve:
+	npm run start
+
 
 run:
 	npm run start
@@ -15,3 +18,5 @@ update:
 
 push_submodule:
 	git push --recurse-submodules=on-demand --remote my_common_react_components
+
+init_react:
