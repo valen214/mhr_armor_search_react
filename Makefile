@@ -19,4 +19,7 @@ update:
 push_submodule:
 	git push --recurse-submodules=on-demand --remote my_common_react_components
 
+init:
+	git lfs track "*.clip"
+
 init_react:

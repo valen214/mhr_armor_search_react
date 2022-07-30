@@ -1,8 +1,12 @@
 {
-  "name": "my-app",
+  "name": "mhr-armor-search-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.9.2",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1",
@@ -13,6 +17,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "react-swipeable-views": "^0.14.0",
     "typescript": "^4.7.4",
     "web-vitals": "^2.1.0"
   },
@@ -41,6 +46,12 @@
     ]
   },
   "devDependencies": {
+    "@types/react-swipeable-views": "^0.13.1",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "eslint": "^8.20.0",
+    "eslint-plugin-react": "^7.30.1",
+    "prettier": "^2.7.1",
     "sass": "^1.54.0"
   }
 }
