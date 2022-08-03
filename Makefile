@@ -22,4 +22,7 @@ push_submodule:
 init:
 	git lfs track "*.clip"
 
+# https://github.com/gpujs/gpu.js/
+
 init_react:
+# styled component

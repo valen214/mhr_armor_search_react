@@ -1,0 +1,57 @@
+
+
+.tab-bar {
+  display: flex;
+  flex-direction: row;
+  box-shadow: 0 2px 2px 0px rgba(0, 0, 0, 0.2);
+
+  .tab {
+    flex-grow: 0;
+    transition: 0.5s flex-grow;
+
+    // padding-left: 30px;
+    // padding-right: 30px;
+
+    min-width: 25vw;
+
+    position: relative;
+
+
+
+    // using before to avoid collision with Button
+    &::before {
+      content: " ";
+      position: absolute;
+
+
+      width: 0;
+      height: 100%;
+
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 -5px white inset, 0 -10px rgb(19, 103, 172) inset;
+
+      transition: 0.3s width;
+    }
+    &.selected::before {
+      // it does not look any better
+      // https://codeburst.io/how-to-do-sass-grandparent-selectors-b8666dcaf961
+    
+      width: 80%;
+    }
+
+    &.selected {
+
+      flex-grow: 1;
+    }
+
+    &:hover::after {
+      background: rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.tab-content {
+  height: 100%;
+}

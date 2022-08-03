@@ -1,2 +1,3 @@
 @echo =====================================================
-@nmake /nologo %*
+@call nmake /nologo %*
+@exit /B && exit /B
