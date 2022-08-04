@@ -2,11 +2,11 @@
 
 
 serve:
-	npm run start
+	yarn run start
 
 
 run:
-	npm run start
+	yarn run start
 
 
 # https://git-scm.com/book/en/v2/Git-Tools-Submodules

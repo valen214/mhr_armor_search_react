@@ -1,3 +1,5 @@
 @echo =====================================================
-@call nmake /nologo %*
-@exit /B && exit /B
+:: start /b /wait "" nmake /nologo %*
+@nmake /nologo %*
+@echo end of make.bat
+@exit /B

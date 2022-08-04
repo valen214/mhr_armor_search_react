@@ -27,9 +27,11 @@ export class SkillsProfile
 export class StatProfile<R>
 {
   readonly id: string;
+  name?: string;
   worker: WorkerWrapper<Skills, R>;
-  constructor(func: (skills: Skills) => R){
+  constructor(func: (skills: Skills) => R, name?: string){
     this.id = crypto.randomUUID();
+    this.name = name;
     this.worker = new WorkerWrapper(func);
   }
 }
