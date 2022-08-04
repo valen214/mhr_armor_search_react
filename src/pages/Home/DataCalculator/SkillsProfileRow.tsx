@@ -66,22 +66,29 @@ export default function SkillsProfileRow({
       >
         {JSON.stringify(translateSkills(strings, profile.skills))}
       </StyledSkillsProfilesRowCell>
-      {cols.slice(2).map(col => {
-        if("stat_id" in col){
+      {cols.slice(2).map((col, i) => {
+        // @ts-ignore
+        let prof = statProfiles.get(col.stat_id);
+        return (
+          <StyledSkillsProfilesRowCell 
           // @ts-ignore
-          let prof = statProfiles.get(col.stat_id);
-          return (
-            <StyledSkillsProfilesRowCell 
-            // @ts-ignore
-              key={col.stat_id}
-              width={col.width}
-            >
-              <PromiseChild>
-                { prof?.worker.postMessage(profile.skills) }
-              </PromiseChild>
-            </StyledSkillsProfilesRowCell>
-          );
-        }
+            key={col.stat_id || i}
+            width={col.width}
+          >
+            <PromiseChild>
+              {
+              /*
+                console.time();
+                for(let i = 0; i < 100000; ++i)
+                  JSON.parse(JSON.stringify({ a: 2, b: 3 }));
+                console.timeEnd(); // 50ms
+              */
+              prof?.calc({
+                skills: profile.skills,
+              })}
+            </PromiseChild>
+          </StyledSkillsProfilesRowCell>
+        );
       })}
     </StyledSkillsProfileRow>
   );
