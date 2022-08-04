@@ -13,6 +13,9 @@ import { useSkillsProfiles, useStatProfiles } from "./useProfiles";
 import { useStrings } from "../../../lang/useStrings";
 import { translateSkills } from "../../../lang/translateSkills";
 import { Button } from "../../../lib/my_components";
+import { DEFAULT_CALCULATOR } from "../../../lib/search_algo";
+import type { ConditionalTypes, ParamsType } from "../../../lib/search_algo/types";
+import ParametersPanel from "./ParametersPanel";
 
 const StyledDataCalcScreenRoot = styled.div`
   height: 100%;
@@ -49,6 +52,12 @@ const StyledSkillsProfilesHeaderCell = styled.div<{
 `;
 const StyledSkillsProfile = styled.div``;
 
+export const ConditionalsContext = (
+  createContext<[ ConditionalTypes, (c: ConditionalTypes) => void ]>([ {}, () => {} ])
+);
+export const ParamsContext = (
+  createContext<[ ParamsType, (c: ParamsType) => void ]>([ {}, () => {} ])
+);
 
 /*
 really don't want to use MUI but I need to get it up quick
@@ -56,12 +65,26 @@ https://mui.com/material-ui/react-table/#collapsible-table
 */
 export default function DataCaculatorScreen(){
   const skillsProfiles = useSkillsProfiles();
-  const statProfiles = useStatProfiles();
   const strings = useStrings();
 
+  const [ conditionals, setConditionals ] = useState<ConditionalTypes>({});
+  const [ params, setParams ] = useState<ParamsType>({
+    weapon_phy: 330,
+
+    petalaces: 20,
+
+    motion_value_phy: 10,
+    sharpness_phy: 1.32,
+    absorption_phy: 60,
+
+    
+    weapon_elem: 52,
+    motion_value_elem: 1,
+    sharpness_elem: 1.15,
+    absorption_elem: 20,
+  });
 
 
-  const [ rows, setRows ] = useState([] as any);
   const [ cols, setCols ] = useState(() => [
     { field: "profileName", headername: "Profile Name", width: 140 },
     { field: "skills", headername: "Skills", width: 300 },
@@ -69,56 +92,54 @@ export default function DataCaculatorScreen(){
       field: "stat", headername: "Crit%",
       width: 80,
       // @ts-ignore
-      stat_id: [...statProfiles.keys()]?.[0]
+      stat_id: DEFAULT_CALCULATOR.getStatProfileByName("Crit")?.id
     }, {
-      field: "stat", headername: "Dmg (elem)",
+      field: "stat", headername: "Total Damage",
       width: 200,
       // @ts-ignore
-      stat_id: [...statProfiles.keys()]?.[1]
+      stat_id: DEFAULT_CALCULATOR.getStatProfileByName("Total Damage")?.id
     },
   ]);
 
-  useEffect(() => {
-    setRows(skillsProfiles.map(prof => {
-      return {
-        id: prof.id,
-        col1: prof.name,
-        col2: JSON.stringify(prof.skills)
-      };
-    }))
-  }, [ skillsProfiles ]);
   
   return (
-    <StyledDataCalcScreenRoot>
-      <StyledTopBar>
-        <Button>Import Skills</Button>
-        <Button>Add Stat (?)</Button>
-        <Button>Import Stat(s)</Button>
-        <Button>Export All Stats</Button>
-      </StyledTopBar>
-      <StyledSkillsProfilesHeader>
-        {cols.map(col => (
-          <StyledSkillsProfilesHeaderCell
-            key={col.stat_id || col.field}
-            width={col.width}
-          >
-            { col.headername }
-          </StyledSkillsProfilesHeaderCell>
-        ))}
-      </StyledSkillsProfilesHeader>
-      <StyledSkillsProfilesContainer>
-        {skillsProfiles.map((prof, i) => (
-          <SkillsProfileRow
-            key={prof.id}
-            profile={prof}
-            cols={cols}
-          />
-        ))}
-      </StyledSkillsProfilesContainer>
-      <StyledBottomBar>
-        BOTTOM BAR
-      </StyledBottomBar>
-    </StyledDataCalcScreenRoot>
+    <ParamsContext.Provider value={[ params, setParams ]}>
+      <ConditionalsContext.Provider value={[ conditionals, setConditionals ]}>
+
+        <StyledDataCalcScreenRoot>
+          <StyledTopBar>
+            <Button>Import Skills</Button>
+            <Button>Add Stat (?)</Button>
+            <Button>Import Stat(s)</Button>
+            <Button>Export All Stats</Button>
+          </StyledTopBar>
+          <ParametersPanel />
+          <StyledSkillsProfilesHeader>
+            {cols.map(col => (
+              <StyledSkillsProfilesHeaderCell
+                // @ts-ignore
+                key={col.stat_id || col.field}
+                width={col.width}
+              >
+                { col.headername }
+              </StyledSkillsProfilesHeaderCell>
+            ))}
+          </StyledSkillsProfilesHeader>
+          <StyledSkillsProfilesContainer>
+            {skillsProfiles.map((prof, i) => (
+              <SkillsProfileRow
+                key={prof.id}
+                profile={prof}
+                cols={cols}
+              />
+            ))}
+          </StyledSkillsProfilesContainer>
+          <StyledBottomBar>
+            BOTTOM BAR
+          </StyledBottomBar>
+        </StyledDataCalcScreenRoot>
+      </ConditionalsContext.Provider>
+    </ParamsContext.Provider>
   )
 }
 

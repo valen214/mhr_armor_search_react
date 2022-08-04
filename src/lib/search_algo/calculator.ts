@@ -6,7 +6,7 @@ import type TypedEmitter from "typed-emitter"
 import WorkerWrapper from "../my_components/src/util/WorkerWrapper";
 
 import type { WorkerArgType, Skills } from "./types";
-import { damage_number_phy } from "./game_related";
+import { crit, damage_number_elem, damage_number_phy, status_elem, status_phy } from "./game_related";
 
 export class SkillsProfile
 {
@@ -17,7 +17,10 @@ export class SkillsProfile
   skills: Skills;
 
   constructor(skills: Skills){
-    this.id = crypto?.randomUUID() || String(++SkillsProfile.count);
+    this.id = (
+      // crypto?.randomUUID() ||
+      String(++SkillsProfile.count)
+    );
     let self_skills: Skills = this.skills = {};
     for(let [ s, v ] of Object.entries(skills)){
       if(v) self_skills[s] = v;
@@ -28,6 +31,8 @@ export class SkillsProfile
 }
 export class StatProfile<R>
 {
+  private static count = 0;
+
   readonly id: string;
   name?: string;
   private worker: WorkerWrapper<WorkerArgType, R>;
@@ -37,7 +42,10 @@ export class StatProfile<R>
     name?: string,
     extra?: string[]
   ){
-    this.id = crypto.randomUUID();
+    this.id = (
+      // crypto?.randomUUID() || 
+      String(++StatProfile.count)
+    );
     this.name = name;
     this.worker = new WorkerWrapper(func, extra);
   }
@@ -60,6 +68,8 @@ export default class MHRCalculator
 extends (EventEmitter as new () => TypedEmitter<{
   "profiles change": () => void
   "stat profiles change": () => void
+
+  "stat profile update": (id: string) => void
 }>) {
 
   skills_profiles: SkillsProfile[] = [];
@@ -94,8 +104,34 @@ extends (EventEmitter as new () => TypedEmitter<{
 
     this.emit("profiles change");
   }
+  removeSkillsProfile(arg: string | SkillsProfile){
+    console.log("?????", arg)
 
-  
+    for(let i = 0; i < this.skills_profiles.length; ++i){
+      let found = false;
+      let prof = this.skills_profiles[i];
+      if(prof.id === arg){
+        found = true;
+      } else if(prof === arg){
+        found = true;
+      }
+
+      if(found){
+        this.skills_profiles.splice(i, 1);
+        this.skills_profiles = [ ...this.skills_profiles ];
+        this.emit("profiles change");
+        break;
+      }
+    }
+  }
+
+  getStatProfileByName(name: string){
+    for(let prof of this.stat_profiles.values()){
+      if(prof.name === name){
+        return prof;
+      }
+    }
+  }
   getStatProfile(id: string){
     return this.stat_profiles.get(id);
   }
@@ -117,7 +153,8 @@ https://gist.github.com/dmnsgn/4a6ad76de1b5928f13f68f406c70bb09?
 permalink_comment_id=3470400#gistcomment-3470400
 */
 
-console.log(damage_number_phy.toString());
+// console.log(status_phy.toString(), damage_number_phy.toString());
+console.log(import.meta.url);
 
 let storedProfiles = (() => {
   let json = localStorage.getItem("skills_profiles");
@@ -133,63 +170,36 @@ let storedProfiles = (() => {
 // https://ngabbs.com/read.php?tid=32584513
 let storedStatProfiles = (() => {
   return [
+    new StatProfile(crit, "Crit"),
     new StatProfile(({
       skills,
+      params,
     }) => {
-      let crit = 0;
-
-      if(skills){
-        crit += [ 0, 3, 5, 7, 10, 15 ][ skills[2] ] || 0;
-        crit += [ 0, 15, 30, 50 ][ skills[8] ] || 0;
-        crit += [ 0, 10, 20, 30, 40, 50 ][ skills[9] ] || 0;
-        crit += [ 0, 10, 20, 30 ][ skills[10] ] || 0;
-        crit += [ 0, 20, 25, 25 ][ skills[117] ] || 0;
-        crit += [ 0, 20, 25, 25 ][ skills[125] ] || 0; // 攻勢 ???
-      }
-
-      return `${crit}`;
-    }),
-    new StatProfile(({
-      skills
-    }) => {
-      let phy = 0, elem = 0;
-      
-      let weapon = [ 330, 52 ];
-      [ phy, elem ] = weapon;
-
-
-      switch(skills && skills[1]){
-        case 1: phy += 3; break;
-        case 2: phy += 6; break;
-        case 3: phy += 9; break;
-        case 4: phy *= 1.05; phy += 7; break;
-        case 5: phy *= 1.06; phy += 8; break;
-        case 6: phy *= 1.08; phy += 9; break;
-        case 7: phy *= 1.10; phy += 10; break;
-      }
-
-      let petalaces = 20; // or 15
-      phy += 6 + 9 + petalaces;
-
-      let motion_value = [ 10, 1 ]; // 10 => 41, 8 => 35
-      let absorption = [ 60, 20 ];
-      let sharpness = [ 1.32, 1.15 ]
-
-      let dmg = [
-        phy * motion_value[0] / 100 * absorption[0] / 100 * sharpness[0],
-        elem * motion_value[1] * absorption[1] / 100 * sharpness[1]
-      ];
+      // @ts-ignore
+      let phy = _damage_number_phy({
+        skills,
+        params,
+        conditionals: {
+          powercharm: true,
+          powertalon: true,
+        }
+      })
 
       // @ts-ignore
-      console.log(_damage_number_phy({ skills }));
+      let elem = _damage_number_elem({
+        skills,
+        params,
+      })
 
       return (
-        `${Math.trunc(phy)}/${elem.toFixed(1)} =>  ` +
-        `${Math.round(dmg[0] + dmg[1])} (${dmg[1].toFixed(1)})`
+        `${Math.round(phy + elem)} (${elem.toFixed(1)})`
       );
-    }, "", [
-      "const _damage_number_phy = ",
-      damage_number_phy.toString(),  ";",
+    }, "Total Damage", [
+      `const status_phy = ${status_phy};`,
+      `const _damage_number_phy = ${damage_number_phy};`,
+
+      `const status_elem = ${status_elem};`,
+      `const _damage_number_elem = ${damage_number_elem};`,
     ]),
   ];
 })();

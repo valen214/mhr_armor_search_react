@@ -1,5 +1,5 @@
 import {
-  useEffect, useState, useSyncExternalStore
+  useEffect, useState, useSyncExternalStore, useRef,
 } from "react";
 import {
   getSkillsProfiles,
@@ -23,6 +23,26 @@ export function useSkillsProfiles(){
   return skillsProfiles;
 }
 
+export function useStatProfile(id: string){
+  // const listenerContainer = useRef(() => {});
+
+  const statProfiles = useSyncExternalStore(
+    (onStoreChange) => {
+      const listener = (_id: string) => {
+        if(id === _id){
+          onStoreChange();
+        }
+      };
+      DEFAULT_CALCULATOR.on("stat profile update", listener);
+      return () => {
+        DEFAULT_CALCULATOR.off("stat profile update", listener);
+      }
+    },
+    () => getStatProfiles().get(id)
+  )
+
+  return statProfiles;
+}
 
 export function useStatProfiles(){
   const statProfiles = useSyncExternalStore(

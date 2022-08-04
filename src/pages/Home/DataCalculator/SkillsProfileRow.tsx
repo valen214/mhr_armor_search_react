@@ -3,6 +3,7 @@
 import React, {
   createContext,
   useCallback,
+  useContext,
   useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore
 } from "react";
 import styled from "styled-components";
@@ -13,6 +14,10 @@ import { useStrings } from "../../../lang/useStrings";
 import { translateSkills } from "../../../lang/translateSkills";
 import { useStatProfiles } from "./useProfiles";
 import PromiseChild from "../../../lib/my_components/src/PromiseChild";
+import { ConditionalsContext, ParamsContext } from "./DataCaculatorScreen";
+import FullPageElement from "../../../lib/my_components/src/FullPageElement";
+import { Button } from "../../../lib/my_components";
+import { removeSkillsProfile } from "../../../lib/search_algo";
 
 const StyledSkillsProfileRow = styled.div`
   height: 80px;
@@ -51,11 +56,64 @@ export default function SkillsProfileRow({
   const strings = useStrings();
   const statProfiles = useStatProfiles();
   
+  const [ conditionals, setConditionals ] = useContext(ConditionalsContext);
+  const [ params, setParams ] = useContext(ParamsContext);
+  
+
+  const [ openRowAction, setOpenRowAction ] = useState<false | {
+    top: string,
+    left: string,
+    width: string, height: string,
+  }>(false);
 
   // rendered 4 times
   return (
     <StyledSkillsProfileRow>
-      <StyledSkillsProfilesRowCell width={cols[0].width}>
+      <FullPageElement
+        flexCentered={false}
+        open={!!openRowAction}
+        backgroundColor="rgba(0, 0, 0, 0.05)"
+        onClose={() => setOpenRowAction(false)}
+      >
+        <div style={{
+          ...openRowAction,
+          position: "absolute",
+          background: "white",
+        }}>
+          <Button
+            style={{
+              background: "#f53b5d",
+              marginLeft: "auto",
+              float: "right",
+            }}
+            onClick={() => {
+              removeSkillsProfile(profile);
+              setOpenRowAction(false);
+            }}
+          >
+            Delete Profile
+          </Button>
+        </div>
+      </FullPageElement>
+      <StyledSkillsProfilesRowCell
+        style={{
+          "cursor": "pointer",
+        }}
+        width={cols[0].width}
+        onClick={(e) => {
+          console.log(e.target);
+          let {
+            top, left, width, height
+          // @ts-ignore
+          } = e.target.parentElement.getBoundingClientRect();
+          setOpenRowAction({
+            top: top + "px",
+            left: left + "px",
+            width: width + "px",
+            height: height + "px",
+          });
+        }}
+      >
         {profile.name}
       </StyledSkillsProfilesRowCell>
       <StyledSkillsProfilesRowCell
@@ -85,6 +143,7 @@ export default function SkillsProfileRow({
               */
               prof?.calc({
                 skills: profile.skills,
+                params,
               })}
             </PromiseChild>
           </StyledSkillsProfilesRowCell>
