@@ -5,6 +5,7 @@ import React, {
   useEffect, useMemo, useState
 } from "react";
 import SkillSelector from "./SkillSelector";
+import Collapse from '../../lib/my_components/src/Collapse';
 
 let StyledH3 = styled.h3`
   cursor: pointer;
@@ -14,6 +15,8 @@ let StyledH3 = styled.h3`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  user-select: none;
 
   &:hover {
     background: rgba(0, 0, 0, 0.05);
@@ -25,7 +28,7 @@ let StyledSkillSelectorContainer = styled.div`
   // transform: scaleY(100%);
   // height: auto;
   max-height: 500px;
-  overflow: auto;
+  overflow: hidden auto;
 
 
   &.collapse {
@@ -37,12 +40,18 @@ let StyledSkillSelectorContainer = styled.div`
 export type ContextedCategorizedSkillPanelProps = {
   title?: string
   skillIds: Array<number>
+  collapseAll?: boolean
 }
 export default function ContextedCategorizedSkillPanel({
   title,
   skillIds,
+  collapseAll,
 }: ContextedCategorizedSkillPanelProps){
   const [ collapse, setCollapse ] = useState(false);
+
+  useEffect(() => {
+    setCollapse(!!collapseAll);
+  }, [ collapseAll ])
 
   return (
     <div style={{ overflow: "hidden" }}>
@@ -53,9 +62,7 @@ export default function ContextedCategorizedSkillPanel({
       >
         {title}
       </StyledH3>
-      <StyledSkillSelectorContainer
-        className={`${collapse || "collapse"}`}
-      >
+      <Collapse open={collapse}>
         {skillIds.map((id, i) => (
           <SkillSelector
             key={id}
@@ -63,7 +70,7 @@ export default function ContextedCategorizedSkillPanel({
             contexted
           />
         ))}
-      </StyledSkillSelectorContainer>
+      </Collapse>
     </div>
   );
 }

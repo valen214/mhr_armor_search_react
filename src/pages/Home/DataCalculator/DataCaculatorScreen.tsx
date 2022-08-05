@@ -67,7 +67,10 @@ export default function DataCaculatorScreen(){
   const skillsProfiles = useSkillsProfiles();
   const strings = useStrings();
 
-  const [ conditionals, setConditionals ] = useState<ConditionalTypes>({});
+  const [ conditionals, setConditionals ] = useState<ConditionalTypes>({
+    powercharm: true,
+    powertalon: true,
+  });
   const [ params, setParams ] = useState<ParamsType>({
     weapon_phy: 330,
 
@@ -101,6 +104,7 @@ export default function DataCaculatorScreen(){
     },
   ]);
 
+  const [ openParamsPanel, setOpenParamsPanel ] = useState(true);
   
   return (
     <ParamsContext.Provider value={[ params, setParams ]}>
@@ -108,12 +112,16 @@ export default function DataCaculatorScreen(){
 
         <StyledDataCalcScreenRoot>
           <StyledTopBar>
+            <Button onClick={() => {
+              setOpenParamsPanel(!openParamsPanel);
+              console.log("???"); 
+            }}>{ openParamsPanel ? "Collapse" : "Open"} Parameters</Button>
             <Button>Import Skills</Button>
             <Button>Add Stat (?)</Button>
             <Button>Import Stat(s)</Button>
             <Button>Export All Stats</Button>
           </StyledTopBar>
-          <ParametersPanel />
+          <ParametersPanel open={openParamsPanel}/>
           <StyledSkillsProfilesHeader>
             {cols.map(col => (
               <StyledSkillsProfilesHeaderCell

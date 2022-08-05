@@ -2,6 +2,7 @@
 
 import React, { ReactComponentElement, ReactNode, useContext } from "react"
 import styled from "styled-components";
+import Collapse from "../../../lib/my_components/src/Collapse";
 
 
 import { ConditionalsContext, ParamsContext } from "./DataCaculatorScreen"
@@ -103,33 +104,39 @@ function SharpnessSelector(){
 }
 
 
-export default function ParametersPanel(){
+export default function ParametersPanel({
+  open
+}: {
+  open?: boolean
+}){
   const [ conditionals, setConditionals ] = useContext(ConditionalsContext);
   const [ params, setParams ] = useContext(ParamsContext);
 
   return (
-    <StyledParametersPanel>
-      {PANEL_DESCRIPTION.map(desp => {
-        switch(desp.type){
-        case "number":
-          return <React.Fragment key={desp.text}>
-            { desp.text }
-            <input type="number"
-              onChange={(e) => {
-                let value = parseInt(e.target.value);
-                if(value){
-                  setParams({
-                    ...params,
-                    [desp.param]: value
-                  });
-                }
-              }}
-            />
-          </React.Fragment>
-        case "other":
-          return <desp.component key={desp.text} />
-        }
-      })}
-    </StyledParametersPanel>
+    <Collapse open={open}>
+      <StyledParametersPanel>
+        {PANEL_DESCRIPTION.map(desp => {
+          switch(desp.type){
+          case "number":
+            return <React.Fragment key={desp.text}>
+              { desp.text }
+              <input type="number"
+                onChange={(e) => {
+                  let value = parseInt(e.target.value);
+                  if(value){
+                    setParams({
+                      ...params,
+                      [desp.param]: value
+                    });
+                  }
+                }}
+              />
+            </React.Fragment>
+          case "other":
+            return <desp.component key={desp.text} />
+          }
+        })}
+      </StyledParametersPanel>
+    </Collapse>
   )
 }

@@ -125,9 +125,7 @@ export default function ManualSearchScreen({
 
   const strings = useStrings();
 
-  const doCollapseRef = useRef(() => {
-
-  })
+  const [ collapseAll, setCollapseAll ] = useState(false);
 
   const DefaultCategorizedSkills = useMemo(() => (
     <>
@@ -140,16 +138,19 @@ export default function ManualSearchScreen({
           // @ts-ignore
           title={strings[category]}
           skillIds={skillIds}
+          collapseAll={collapseAll}
         />
       ))}
     </>
-  ), [ DEFAULT_SKILLS_CATEGORIES, strings, strings.getLanguage() ]);
+  ), [ collapseAll, strings, strings.getLanguage() ]);
 
   return (
     <StyledManualSearchScreenRoot>
       <StyledTopBar>
         <Button>Set Charms</Button>
-        <Button>Collapse All</Button>
+        <Button onClick={() => {
+          setCollapseAll(!collapseAll);
+        }}>Collapse All</Button>
         <Button>Reset Skills</Button>
       </StyledTopBar>
       <StyledCategorizedSkillContainer>
@@ -158,14 +159,17 @@ export default function ManualSearchScreen({
           <ContextedCategorizedSkillPanel
             title={strings.quest}
             skillIds={[ 1, 2, 3, 4, 5, 6 ]}
+            collapseAll={collapseAll}
           />
           <ContextedCategorizedSkillPanel
             title={strings.battle_survival}
             skillIds={[ 2, 4, 6, 8, 5, 10 ]}
+            collapseAll={collapseAll}
           />
           <ContextedCategorizedSkillPanel
             title={strings.item}
             skillIds={[ 2, 4, 6, 8, 5, 10 ]}
+            collapseAll={collapseAll}
           />
         </SkillsContext.Provider>
       </StyledCategorizedSkillContainer>

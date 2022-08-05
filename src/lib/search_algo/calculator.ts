@@ -171,25 +171,12 @@ let storedProfiles = (() => {
 let storedStatProfiles = (() => {
   return [
     new StatProfile(crit, "Crit"),
-    new StatProfile(({
-      skills,
-      params,
-    }) => {
+    new StatProfile((arg) => {
       // @ts-ignore
-      let phy = _damage_number_phy({
-        skills,
-        params,
-        conditionals: {
-          powercharm: true,
-          powertalon: true,
-        }
-      })
+      let phy = _damage_number_phy(arg)
 
       // @ts-ignore
-      let elem = _damage_number_elem({
-        skills,
-        params,
-      })
+      let elem = _damage_number_elem(arg)
 
       return (
         `${Math.round(phy + elem)} (${elem.toFixed(1)})`

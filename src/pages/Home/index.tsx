@@ -49,25 +49,17 @@ export default function Home() {
           Data Calculator
         </Button>
       </div>
-      <SwipeableViews
-        containerStyle={{ height: "calc(100% - 131px)"}}
-        style={{ overflow: "visible", height: "100%" }}
-        index={selectedTab}
-        onChangeIndex={setSelectedTab}
-        springConfig={{
-          duration: '0.5s',
-          easeFunction: 'ease-in-out',
-          delay: '0s'
-        }}
-      >
-        <div className="tab-content">
-          <ManualSearchScreen />
-        </div>
-        <div className="tab-content">
-          <DataCaculatorScreen />
-        </div>
+      <div className="tab-content" style={{
+        "display": selectedTab === 0 ? "block" : "none"
+      }}>
+        <ManualSearchScreen />
+      </div>
+      <div className="tab-content" style={{
+        "display": selectedTab === 1 ? "block" : "none"
+      }}>
+        <DataCaculatorScreen />
+      </div>
         
-      </SwipeableViews>
     </div>
   );
 }

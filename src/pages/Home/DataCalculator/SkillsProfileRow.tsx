@@ -144,6 +144,7 @@ export default function SkillsProfileRow({
               prof?.calc({
                 skills: profile.skills,
                 params,
+                conditionals,
               })}
             </PromiseChild>
           </StyledSkillsProfilesRowCell>
