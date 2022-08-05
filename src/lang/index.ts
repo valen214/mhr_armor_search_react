@@ -77,6 +77,7 @@ export default strings;
 const loadedListeners: Array<Function> = [];
 let loaded = false;
 export function addLoadedListener(listener: Function){
+  loadedListeners.push(listener);
   if(loaded){
     try{
       listener();
@@ -84,10 +85,9 @@ export function addLoadedListener(listener: Function){
       console.error(e);
     }
   } else{
-    loadedListeners.push(listener);
   }
 }
-function notifyLoaded(){
+export function notifyLoaded(){
   loaded = true;
   for(let func of loadedListeners){
     try{
@@ -104,67 +104,72 @@ export function getSkillMaxLevel(skillId: number){
 }
 
 
-Promise.allSettled([
-  "/lang/skills_en.csv",
-  "/lang/skills_zh.csv",
-].map(url => fetch(url))
-).then(results => {
-  let out: { [lang: string]: Promise<string> } = {};
-
-  for(let result of results){
-    if(result.status === "fulfilled"){
-      let value = result.value;
-      let lang = value.url.match(/_([^.]+)\.csv/i);
-      if(lang?.[1]){
-        out[lang[1]] = result.value.text();
+function init(){
+  Promise.allSettled([
+    "/lang/skills_en.csv",
+    "/lang/skills_zh.csv",
+  ].map(url => fetch(url))
+  ).then(results => {
+    let out: { [lang: string]: Promise<string> } = {};
+  
+    for(let result of results){
+      if(result.status === "fulfilled"){
+        let value = result.value;
+        let lang = value.url.match(/_([^.]+)\.csv/i);
+        if(lang?.[1]){
+          out[lang[1]] = result.value.text();
+        }
       }
     }
-  }
-
-  return out;
-}).then(async texts => {
-  let out: { [lang: string]: { [skillId: string]: string } } = {}
-  for(let entry of Object.entries(texts)){
-    let skillsMap: { [skillId: string]: string } = {};
-    
-    (
-      await entry[1]
-    ).split("\n"
-    ).map(line => line.split(",")
-    ).forEach(arr => {
-      let skillId = arr[0]
-      let skillName = arr[1];
-      if(skillName){
-        skillsMap["skill" + skillId] = skillName.trim();
-      }
-
-      let maxLevel = arr[2];
-      if(maxLevel){
-        STORED_SKILL_MAX_LEVEL.set(
-            parseInt(skillId),
-            parseInt(maxLevel)
-        );
-      }
-    });
-    
-    out[entry[0]] = skillsMap;
-  }
-
-  console.log(out);
-  (window as any)["strings"] = strings;
-
-  let transformedOut = Object.fromEntries(
-    Object.entries(
-      DEFAULT_LOCALIZED_STRINGS
-    ).map(([lang, data]) =>
-      [ lang, Object.assign({}, data, out[lang]) ]
-    )
-  );
-  strings.setContent(transformedOut);
-
-  console.log("lang.ts: extra csv loaded for strings");
   
-  strings.setLanguage("zh");
-  notifyLoaded();
-})
-
+    return out;
+  }).then(async texts => {
+    let out: { [lang: string]: { [skillId: string]: string } } = {}
+    for(let entry of Object.entries(texts)){
+      let skillsMap: { [skillId: string]: string } = {};
+      
+      (
+        await entry[1]
+      ).split("\n"
+      ).map(line => line.split(",")
+      ).forEach(arr => {
+        let skillId = arr[0]
+        let skillName = arr[1];
+        if(skillName){
+          skillsMap["skill" + skillId] = skillName.trim();
+        }
+  
+        let maxLevel = arr[2];
+        if(maxLevel){
+          STORED_SKILL_MAX_LEVEL.set(
+              parseInt(skillId),
+              parseInt(maxLevel)
+          );
+        }
+      });
+      
+      out[entry[0]] = skillsMap;
+    }
+  
+    console.log(out);
+    (window as any)["strings"] = strings;
+  
+    let transformedOut = Object.fromEntries(
+      Object.entries(
+        DEFAULT_LOCALIZED_STRINGS
+      ).map(([lang, data]) =>
+        [ lang, Object.assign({}, data, out[lang]) ]
+      )
+    );
+    strings.setContent(transformedOut);
+  
+    console.log("lang.ts: extra csv loaded for strings");
+    
+    strings.setLanguage("zh");
+    notifyLoaded();
+  })
+}
+init();
+// document.addEventListener("load", () => {
+//   init();
+// })

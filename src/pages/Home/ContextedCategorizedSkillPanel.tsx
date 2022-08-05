@@ -5,7 +5,7 @@ import React, {
   useEffect, useMemo, useState
 } from "react";
 import SkillSelector from "./SkillSelector";
-import Collapse from '../../lib/my_components/src/Collapse';
+import { Collapse } from '@mui/material';
 
 let StyledH3 = styled.h3`
   cursor: pointer;
@@ -53,16 +53,16 @@ export default function ContextedCategorizedSkillPanel({
     setCollapse(!!collapseAll);
   }, [ collapseAll ])
 
-  return (
+  return useMemo(() => (
     <div style={{ overflow: "hidden" }}>
       <StyledH3
         onClick={() => {
           setCollapse(!collapse);
         }}
-      >
+        >
         {title}
       </StyledH3>
-      <Collapse open={collapse}>
+      <Collapse in={collapse}>
         {skillIds.map((id, i) => (
           <SkillSelector
             key={id}
@@ -72,5 +72,5 @@ export default function ContextedCategorizedSkillPanel({
         ))}
       </Collapse>
     </div>
-  );
+  ), [ title, skillIds.join(" "), collapse ]);
 }

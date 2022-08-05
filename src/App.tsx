@@ -40,7 +40,7 @@ export default function App() {
         "/icon?family=Material+Icons";
     document.head.appendChild(icon_font);
     
-
+    console.log("LOADED");
     return () => {
       document.head.removeChild(style);
       document.head.removeChild(roboto_font);

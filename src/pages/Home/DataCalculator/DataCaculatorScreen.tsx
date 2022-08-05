@@ -16,6 +16,10 @@ import { Button } from "../../../lib/my_components";
 import { DEFAULT_CALCULATOR } from "../../../lib/search_algo";
 import type { ConditionalTypes, ParamsType } from "../../../lib/search_algo/types";
 import ParametersPanel from "./ParametersPanel";
+import FullPageElement from "../../../lib/my_components/src/FullPageElement";
+import { style } from "../../../lib/my_components/src/util/react_util";
+import CalculatorExportPrompt from "./CalculatorExportPrompt";
+import AddColumnPrompt from "./AddColumnPrompt";
 
 const StyledDataCalcScreenRoot = styled.div`
   height: 100%;
@@ -106,48 +110,67 @@ export default function DataCaculatorScreen(){
 
   const [ openParamsPanel, setOpenParamsPanel ] = useState(true);
   
-  return (
-    <ParamsContext.Provider value={[ params, setParams ]}>
-      <ConditionalsContext.Provider value={[ conditionals, setConditionals ]}>
 
-        <StyledDataCalcScreenRoot>
-          <StyledTopBar>
-            <Button onClick={() => {
-              setOpenParamsPanel(!openParamsPanel);
-              console.log("???"); 
-            }}>{ openParamsPanel ? "Collapse" : "Open"} Parameters</Button>
-            <Button>Import Skills</Button>
-            <Button>Add Stat (?)</Button>
-            <Button>Import Stat(s)</Button>
-            <Button>Export All Stats</Button>
-          </StyledTopBar>
-          <ParametersPanel open={openParamsPanel}/>
-          <StyledSkillsProfilesHeader>
-            {cols.map(col => (
-              <StyledSkillsProfilesHeaderCell
-                // @ts-ignore
-                key={col.stat_id || col.field}
-                width={col.width}
-              >
-                { col.headername }
-              </StyledSkillsProfilesHeaderCell>
-            ))}
-          </StyledSkillsProfilesHeader>
-          <StyledSkillsProfilesContainer>
-            {skillsProfiles.map((prof, i) => (
-              <SkillsProfileRow
-                key={prof.id}
-                profile={prof}
+  return (
+    <>
+      <ParamsContext.Provider value={[ params, setParams ]}>
+        <ConditionalsContext.Provider
+          value={[ conditionals, setConditionals ]}
+        >
+
+          <StyledDataCalcScreenRoot>
+            <StyledTopBar>
+              <Button onClick={() => {
+                setOpenParamsPanel(!openParamsPanel);
+                console.log("???"); 
+              }}>{ openParamsPanel ? "Collapse" : "Open"} Parameters</Button>
+              <Button>Import Skills</Button>
+              <AddColumnPrompt.Button />
+              <Button onClick={() => {
+                for(let prof of
+                  DEFAULT_CALCULATOR.stat_profiles.values()
+                ){
+                  prof.resetWorker();
+                }
+                setTimeout(() => {
+                  DEFAULT_CALCULATOR.emit("profiles change");
+                }, 1000);
+              }}>Refresh workers</Button>
+              <Button>Import Stat(s)</Button>
+              <CalculatorExportPrompt.Button
+                params={params}
+                conditionals={conditionals}
                 cols={cols}
               />
-            ))}
-          </StyledSkillsProfilesContainer>
-          <StyledBottomBar>
-            BOTTOM BAR
-          </StyledBottomBar>
-        </StyledDataCalcScreenRoot>
-      </ConditionalsContext.Provider>
-    </ParamsContext.Provider>
+            </StyledTopBar>
+            <ParametersPanel open={openParamsPanel}/>
+            <StyledSkillsProfilesHeader>
+              {cols.map(col => (
+                <StyledSkillsProfilesHeaderCell
+                  // @ts-ignore
+                  key={col.stat_id || col.field}
+                  width={col.width}
+                >
+                  { col.headername }
+                </StyledSkillsProfilesHeaderCell>
+              ))}
+            </StyledSkillsProfilesHeader>
+            <StyledSkillsProfilesContainer>
+              {skillsProfiles.map((prof, i) => (
+                <SkillsProfileRow
+                  key={prof.id}
+                  profile={prof}
+                  cols={cols}
+                />
+              ))}
+            </StyledSkillsProfilesContainer>
+            <StyledBottomBar>
+              BOTTOM BAR
+            </StyledBottomBar>
+          </StyledDataCalcScreenRoot>
+        </ConditionalsContext.Provider>
+      </ParamsContext.Provider>
+    </>
   )
 }
 

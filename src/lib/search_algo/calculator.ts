@@ -38,16 +38,15 @@ export class StatProfile<R>
   private worker: WorkerWrapper<WorkerArgType, R>;
 
   constructor(
-    func: (arg: WorkerArgType) => R,
+    func: ((arg: WorkerArgType) => R) | string,
     name?: string,
-    extra?: string[]
   ){
     this.id = (
       // crypto?.randomUUID() || 
       String(++StatProfile.count)
     );
     this.name = name;
-    this.worker = new WorkerWrapper(func, extra);
+    this.worker = new WorkerWrapper(func);
   }
 
   public calc(arg: Partial<WorkerArgType>){
@@ -61,6 +60,10 @@ export class StatProfile<R>
     _arg = JSON.parse(JSON.stringify(_arg));
 
     return this.worker.postMessage(_arg);
+  }
+
+  public resetWorker(){
+    this.worker.resetWorker();
   }
 }
 
@@ -171,7 +174,7 @@ let storedProfiles = (() => {
 let storedStatProfiles = (() => {
   return [
     new StatProfile(crit, "Crit"),
-    new StatProfile((arg) => {
+    new StatProfile(((arg: WorkerArgType) => {
       // @ts-ignore
       let phy = _damage_number_phy(arg)
 
@@ -181,13 +184,14 @@ let storedStatProfiles = (() => {
       return (
         `${Math.round(phy + elem)} (${elem.toFixed(1)})`
       );
-    }, "Total Damage", [
+    }).toString() + [
+      `;`,
       `const status_phy = ${status_phy};`,
       `const _damage_number_phy = ${damage_number_phy};`,
 
       `const status_elem = ${status_elem};`,
       `const _damage_number_elem = ${damage_number_elem};`,
-    ]),
+    ].join(""), "Total Damage", ),
   ];
 })();
 export const DEFAULT_CALCULATOR = new MHRCalculator(

@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import SwipeableViews from 'react-swipeable-views';
-import strings, { addLoadedListener } from '../../lang';
+import strings, { addLoadedListener, notifyLoaded } from '../../lang';
 
 import { Button,  util } from '../../lib/my_components';
 import Dropdown from '../../lib/my_components/src/Dropdown';
@@ -34,6 +34,20 @@ export default function Home() {
   return (
     <div className="App">
       <header className="App-header">
+        <Button
+          style={{
+            float: "right",
+            maringLeft: "auto",
+          }}
+          onClick={() => {
+            strings.setLanguage(
+              strings.getLanguage() === "en" ? 
+              "zh" : "en");
+            notifyLoaded();
+          }}
+        >
+          <span className="material-icons">language</span>
+        </Button>
       </header>
       <div className="tab-bar">
         <Button
@@ -55,7 +69,7 @@ export default function Home() {
         <ManualSearchScreen />
       </div>
       <div className="tab-content" style={{
-        "display": selectedTab === 1 ? "block" : "none"
+        "display": selectedTab === 1 ? "block" : "none",
       }}>
         <DataCaculatorScreen />
       </div>

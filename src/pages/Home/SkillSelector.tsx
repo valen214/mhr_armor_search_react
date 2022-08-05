@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect, useMemo, useState
 } from "react";
+import { useContextSelector } from 'use-context-selector';
 
 import { styled } from "@mui/system";
 import InputLabel from '@mui/material/InputLabel';
@@ -43,13 +44,14 @@ export default function SkillSelector({
   contexted,
 }: SkillSelectorProps){
   
-  const [ skills, setSkill ] = useContext(SkillsContext);
+  const ctxLv = useContextSelector(SkillsContext, v => v[0][skillId]);
+  const setSkill = useContextSelector(SkillsContext, v => v[1]);
   /*
   https://github.com/mui/material-ui/blob/master/
 packages/mui-utils/src/useControlled.js
   */
   const [ internalLv, _setinternalLv ] = useControlled({
-    controlled: contexted ? skills[skillId] || 0 : lv,
+    controlled: contexted ? ctxLv || 0 : lv,
     default: 0,
     name: "SkillSelector"
   });
@@ -84,9 +86,9 @@ packages/mui-utils/src/useControlled.js
   }, [ lv ]);
   useEffect(() => {
     if(contexted){
-      _setinternalLv(skills[skillId] || 0);
+      _setinternalLv(ctxLv || 0);
     }
-  }, [ skills ]);
+  }, [ ctxLv ]);
 
   const handleChange = (
     event: ChangeEvent<HTMLSelectElement>

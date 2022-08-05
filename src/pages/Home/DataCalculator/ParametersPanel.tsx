@@ -2,7 +2,7 @@
 
 import React, { ReactComponentElement, ReactNode, useContext } from "react"
 import styled from "styled-components";
-import Collapse from "../../../lib/my_components/src/Collapse";
+import Collapse from '@mui/material/Collapse';
 
 
 import { ConditionalsContext, ParamsContext } from "./DataCaculatorScreen"
@@ -113,7 +113,7 @@ export default function ParametersPanel({
   const [ params, setParams ] = useContext(ParamsContext);
 
   return (
-    <Collapse open={open}>
+    <Collapse in={open}>
       <StyledParametersPanel>
         {PANEL_DESCRIPTION.map(desp => {
           switch(desp.type){
