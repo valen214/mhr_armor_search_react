@@ -4,7 +4,8 @@ import {
 import {
   getSkillsProfiles,
   DEFAULT_CALCULATOR,
-  getStatProfiles
+  getStatProfiles,
+  StatProfile
 } from "../../../lib/search_algo";
 
 
@@ -45,14 +46,41 @@ export function useStatProfile(id: string){
 }
 
 export function useStatProfiles(){
-  const statProfiles = useSyncExternalStore(
+  const statProfRef = useRef<{
+    statProfiles: Map<string, StatProfile<any>>
+  }>({
+    statProfiles: DEFAULT_CALCULATOR.getStatProfiles()
+  });
+  const { statProfiles } = useSyncExternalStore(
     (onStoreChange) => {
-      DEFAULT_CALCULATOR.on("stat profiles change", onStoreChange);
+      const statProfChangeListener = () => {
+        console.assert(
+            statProfRef.current.statProfiles ===
+            DEFAULT_CALCULATOR.getStatProfiles(),
+            "statProfChangeListener: ref value unmatch",
+        );
+        console.log(
+          "statProfChangeListener:",
+          DEFAULT_CALCULATOR.getStatProfiles()
+        );
+        statProfRef.current = {
+          statProfiles: DEFAULT_CALCULATOR.getStatProfiles()
+        };
+        onStoreChange();
+      };
+
+      DEFAULT_CALCULATOR.on(
+        "stat profiles change",
+        statProfChangeListener
+      );
       return () => {
-        DEFAULT_CALCULATOR.off("stat profiles change", onStoreChange);
+        DEFAULT_CALCULATOR.off(
+          "stat profiles change",
+          statProfChangeListener
+        );
       }
     },
-    () => getStatProfiles()
+    () => statProfRef.current
   )
 
   return statProfiles;

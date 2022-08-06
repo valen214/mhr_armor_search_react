@@ -2,6 +2,12 @@
 
 export type Skills = { [skillId: number | string]: number }
 
+/*
+https://game.capcom.com/manual/MHRISE/en/switch/page/9/3
+https://mhrise.kiranico.com/zh-Hant/data/skills
+https://monsterhunterrise.wiki.fextralife.com/Demondrug
+*/
+
 
 export type ParamsType = Partial<{
   "weapon_phy": number

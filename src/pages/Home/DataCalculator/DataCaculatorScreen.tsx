@@ -27,9 +27,13 @@ const StyledDataCalcScreenRoot = styled.div`
   flex-direction: column;
 `;
 const StyledTopBar = styled.div`
-  height: 60px;
+  min-height: 60px;
   flex-shrink: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
 `;
 const StyledSkillsProfilesHeader = styled.div`
   height: 60px;
@@ -88,7 +92,7 @@ export default function DataCaculatorScreen(){
     powertalon: true,
   });
 
-
+  const statProfiles = useStatProfiles();
   const [ cols, setCols ] = useState(() => [
     { field: "profileName", headername: "Profile Name", width: 140 },
     { field: "skills", headername: "Skills", width: 300 },
@@ -104,6 +108,44 @@ export default function DataCaculatorScreen(){
       stat_id: DEFAULT_CALCULATOR.getStatProfileByName("Total Damage")?.id
     },
   ]);
+  useEffect(() => {
+    let added = [];
+    
+    let skip_crit = DEFAULT_CALCULATOR.getStatProfileByName("Crit")?.id
+    let skip_damage = (
+      DEFAULT_CALCULATOR.getStatProfileByName("Total Damage")?.id
+    );
+    for(let [ id, prof ] of statProfiles.entries()){
+      if(id === skip_crit || id === skip_damage){
+        continue;
+      }
+      added.push({
+        field: "stat",
+        headername: prof.name,
+        width: 60,
+        stat_id: prof.id,
+      })
+    }
+    setCols([
+      { field: "profileName", headername: "Profile Name", width: 140 },
+      { field: "skills", headername: "Skills", width: 300 },
+      {
+        field: "stat", headername: "Crit%",
+        width: 80,
+        // @ts-ignore
+        stat_id: skip_crit
+      }, {
+        field: "stat", headername: "Total Damage",
+        width: 200,
+        // @ts-ignore
+        stat_id: skip_damage
+      },
+      // @ts-ignore
+      ...added
+    ])
+
+    console.log("statProfiles update, added:", added);
+  }, [ statProfiles ])
 
   const [ openParamsPanel, setOpenParamsPanel ] = useState(true);
   

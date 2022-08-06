@@ -1,18 +1,23 @@
 
 
-import React, { ReactComponentElement, ReactNode, useContext } from "react"
+import React, { ChangeEvent, ReactComponentElement, ReactNode, useContext } from "react"
 import styled from "styled-components";
 import Collapse from '@mui/material/Collapse';
+import TextField from '@mui/material/TextField';
 
 
 import { ParamsContext } from "./DataCaculatorScreen"
 import type { ParamsType } from "../../../lib/search_algo/types";
-
+import { Button, FormControl, FormControlLabel, InputLabel, MenuItem, Select, SelectChangeEvent, Switch } from "@mui/material";
+import { useStrings } from "../../../lang/useStrings";
+import FullPageElement from "../../../lib/my_components/src/FullPageElement";
 
 const StyledParametersPanel = styled.div`
-  height: 300px;
   flex-shrink: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  padding-bottom: 50px;
 `;
 
 const PANEL_DESCRIPTION: Array<{
@@ -23,11 +28,17 @@ const PANEL_DESCRIPTION: Array<{
   type: "toggle",
   text: string,
   param: keyof ParamsType | string
+  default?: boolean
 } | {
   type: "options",
   text: string,
   param: keyof ParamsType | string,
-  options: Array<number | string>
+  default: number | string
+  options: Array<number | string | {
+    text: string,
+    value: number | string,
+    default?: boolean
+  }>
 } | {
   type: "other",
   text: string,
@@ -62,9 +73,28 @@ const PANEL_DESCRIPTION: Array<{
     text: "absorption (elem)",
     param: "absorption_elem",
   }, {
+    type: "options",
+    text: "Demondrug",
+    param: "demondrug",
+    default: 0,
+    options: [{
+      text: "None",
+      value: 0,
+    }, {
+      text: "Demondrug",
+      value: 5,
+    }, {
+      text: "Mega Demondrug",
+      value: 7,
+    }]
+  }, {
     type: "toggle",
     text: "powercharm",
     param: "powercharm",
+  }, {
+    type: "toggle",
+    text: "powertalon",
+    param: "powertalon",
   }
 ]
 
@@ -140,39 +170,119 @@ export default function ParametersPanel({
   open?: boolean
 }){
   const [ params, setParams ] = useContext(ParamsContext);
+  const strings = useStrings();
 
   return (
-    <Collapse in={open}>
+    <Collapse in={open} style={{
+      flexShrink: 0
+    }}>
       <StyledParametersPanel>
         {PANEL_DESCRIPTION.map(desp => {
           switch(desp.type){
           case "number":
             return (
-              <span style={{
-                padding: "10px 15px",
-                whiteSpace: "nowrap",
-              }} key={desp.text}>
-                <React.Fragment>
-                  { desp.text }
-                  <input type="number"
-                    onChange={(e) => {
-                      let value = parseInt(e.target.value);
-                      if(value){
-                        setParams({
-                          ...params,
-                          [desp.param]: value
-                        });
-                      }
+              <TextField
+                key={desp.text}
+                variant="outlined"
+                label={desp.text}
+                onChange={(e) => {
+                  let value = parseInt(e.target.value);
+                  if(value){
+                    setParams({
+                      ...params,
+                      [desp.param]: value
+                    });
+                  }
+                }}
+              />
+            );
+          case "toggle":
+            return (
+              <FormControlLabel
+                key={desp.text}
+                sx={{
+                  minWidth: "120px",
+                }}
+                labelPlacement="start"
+                control={
+                  <Switch
+                    checked={params[desp.param]}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                      let checked = event.target.checked;
+                      setParams({
+                        ...params,
+                        [desp.param]: checked,
+                      });
                     }}
                   />
-                </React.Fragment>
-              </span>
+                }
+                label={desp.text}
+              />
             );
+          case "options":
+            return (
+              <FormControl
+                key={desp.text}
+                sx={{
+                  minWidth: "120px",
+                }} 
+              >
+                <InputLabel>{desp.text}</InputLabel>
+                <Select
+                  label={desp.text}
+                  defaultValue={params[desp.param] || desp.default}
+                  value={params[desp.param]}
+                  onChange={(event: SelectChangeEvent) => {
+                    let value = event.target.value;
+                    setParams({
+                      ...params,
+                      [desp.param]: value
+                    })
+                  }}
+                >
+                  {desp.options.map(v => {
+                    let text, value;
+                    if(typeof v === "number"
+                    || typeof v === "string"){
+                      text = value = v;
+                    } else{
+                      text = v.text;
+                      value = v.value;
+                    }
+
+                    return (
+                      <MenuItem
+                        key={text}
+                        value={value}
+                      >
+                        {text}
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
+              </FormControl>
+            )
           case "other":
             return <desp.component key={desp.text} />
           }
         })}
       </StyledParametersPanel>
     </Collapse>
+  )
+}
+
+
+export function EditParametersPanel(){
+  return (
+    <FullPageElement>
+
+    </FullPageElement>
+  )
+}
+EditParametersPanel.Button = function EditParametersPanelButton(){
+  return (
+    <>
+      <Button>Edit Parameters</Button>
+    </>
   )
 }

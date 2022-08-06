@@ -140,8 +140,11 @@ extends (EventEmitter as new () => TypedEmitter<{
   getStatProfiles(){
     return this.stat_profiles;
   }
-  addStatProfile<R>(func: (arg: WorkerArgType) => R){
-    let prof = new StatProfile(func);
+  addStatProfile<R>(
+    arg: string | ((arg: WorkerArgType) => R),
+    name: string
+  ){
+    let prof = new StatProfile(arg, name);
     this.stat_profiles.set(prof.id, prof);
 
     this.emit("stat profiles change");
@@ -190,7 +193,7 @@ let storedStatProfiles = (() => {
 
       `const status_elem = ${status_elem};`,
       `const _damage_number_elem = ${damage_number_elem};`,
-    ].join(""), "Total Damage", ),
+    ].join(""), "Total Damage"),
   ];
 })();
 export const DEFAULT_CALCULATOR = new MHRCalculator(
