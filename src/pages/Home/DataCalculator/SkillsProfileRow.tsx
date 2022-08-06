@@ -14,7 +14,7 @@ import { useStrings } from "../../../lang/useStrings";
 import { translateSkills } from "../../../lang/translateSkills";
 import { useStatProfiles } from "./useProfiles";
 import PromiseChild from "../../../lib/my_components/src/PromiseChild";
-import { ConditionalsContext, ParamsContext } from "./DataCaculatorScreen";
+import { ParamsContext } from "./DataCaculatorScreen";
 import FullPageElement from "../../../lib/my_components/src/FullPageElement";
 import { Button } from "../../../lib/my_components";
 import { removeSkillsProfile } from "../../../lib/search_algo";
@@ -56,7 +56,6 @@ export default function SkillsProfileRow({
   const strings = useStrings();
   const statProfiles = useStatProfiles();
   
-  const [ conditionals, setConditionals ] = useContext(ConditionalsContext);
   const [ params, setParams ] = useContext(ParamsContext);
   
 
@@ -144,7 +143,6 @@ export default function SkillsProfileRow({
               prof?.calc({
                 skills: profile.skills,
                 params,
-                conditionals,
               })}
             </PromiseChild>
           </StyledSkillsProfilesRowCell>

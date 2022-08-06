@@ -51,7 +51,6 @@ export class StatProfile<R>
 
   public calc(arg: Partial<WorkerArgType>){
     let _arg: WorkerArgType = {
-      conditionals: {},
       params: {},
       skills: {},
       ...arg,

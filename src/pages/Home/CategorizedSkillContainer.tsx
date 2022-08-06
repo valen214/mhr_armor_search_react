@@ -63,11 +63,11 @@ export default function CategorizedSkillContainer({
   
   const DefaultCategorizedSkills = useMemo(() => (
     Object.entries(DEFAULT_SKILLS_CATEGORIES).map((
-      [ category, skillIds ]
+      [ category, skillIds ], i
     ) => (
       <ContextedCategorizedSkillPanel
         // @ts-ignore
-        key={category}
+        key={i}
         // @ts-ignore
         title={strings[category]}
         skillIds={skillIds}

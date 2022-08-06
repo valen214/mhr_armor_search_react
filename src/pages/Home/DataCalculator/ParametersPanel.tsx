@@ -5,8 +5,8 @@ import styled from "styled-components";
 import Collapse from '@mui/material/Collapse';
 
 
-import { ConditionalsContext, ParamsContext } from "./DataCaculatorScreen"
-
+import { ParamsContext } from "./DataCaculatorScreen"
+import type { ParamsType } from "../../../lib/search_algo/types";
 
 
 const StyledParametersPanel = styled.div`
@@ -18,7 +18,16 @@ const StyledParametersPanel = styled.div`
 const PANEL_DESCRIPTION: Array<{
   type: "number"
   text: string
-  param: string
+  param: keyof ParamsType | string
+} | {
+  type: "toggle",
+  text: string,
+  param: keyof ParamsType | string
+} | {
+  type: "options",
+  text: string,
+  param: keyof ParamsType | string,
+  options: Array<number | string>
 } | {
   type: "other",
   text: string,
@@ -36,7 +45,27 @@ const PANEL_DESCRIPTION: Array<{
     type: "other",
     text: "Sharpness",
     component: SharpnessSelector
-  },
+  }, {
+    type: "number",
+    text: "motion value (phy)",
+    param: "motion_value_phy",
+  }, {
+    type: "number",
+    text: "absorption (phy)",
+    param: "absorption_phy",
+  }, {
+    type: "number",
+    text: "motion value (elem)",
+    param: "motion_value_elem",
+  }, {
+    type: "number",
+    text: "absorption (elem)",
+    param: "absorption_elem",
+  }, {
+    type: "toggle",
+    text: "powercharm",
+    param: "powercharm",
+  }
 ]
 
 
@@ -70,7 +99,9 @@ function SharpnessSelector(){
   return (
     <>
       <label htmlFor="sharpness">Sharpness</label>
-      <select name="sharpness" id="sharpness"
+      <select
+        name="sharpness" id="sharpness"
+        defaultValue={JSON.stringify(["#ffffff", ...[1.32, 1.15]])}
         onChange={(e) => {
           let [
             background, sharpness_phy, sharpness_elem
@@ -93,7 +124,6 @@ function SharpnessSelector(){
             key={text}
             background={background as string}
             value={JSON.stringify([background, ...value])}
-            
           >
             {text}
           </StyledSharpnessOption>
@@ -109,7 +139,6 @@ export default function ParametersPanel({
 }: {
   open?: boolean
 }){
-  const [ conditionals, setConditionals ] = useContext(ConditionalsContext);
   const [ params, setParams ] = useContext(ParamsContext);
 
   return (
@@ -118,20 +147,27 @@ export default function ParametersPanel({
         {PANEL_DESCRIPTION.map(desp => {
           switch(desp.type){
           case "number":
-            return <React.Fragment key={desp.text}>
-              { desp.text }
-              <input type="number"
-                onChange={(e) => {
-                  let value = parseInt(e.target.value);
-                  if(value){
-                    setParams({
-                      ...params,
-                      [desp.param]: value
-                    });
-                  }
-                }}
-              />
-            </React.Fragment>
+            return (
+              <span style={{
+                padding: "10px 15px",
+                whiteSpace: "nowrap",
+              }} key={desp.text}>
+                <React.Fragment>
+                  { desp.text }
+                  <input type="number"
+                    onChange={(e) => {
+                      let value = parseInt(e.target.value);
+                      if(value){
+                        setParams({
+                          ...params,
+                          [desp.param]: value
+                        });
+                      }
+                    }}
+                  />
+                </React.Fragment>
+              </span>
+            );
           case "other":
             return <desp.component key={desp.text} />
           }

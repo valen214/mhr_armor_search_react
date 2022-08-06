@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button";
 import { useState } from "react";
 import FullPageElement from "../../../lib/my_components/src/FullPageElement";
-import { ConditionalTypes, ParamsType } from "../../../lib/search_algo/types";
+import { ParamsType } from "../../../lib/search_algo/types";
 
 
 export type CalculatorExportPromptProps = {
@@ -9,7 +9,6 @@ export type CalculatorExportPromptProps = {
   open?: boolean
   onClose?: Function
   params?: ParamsType
-  conditionals?: ConditionalTypes
   cols?: any
   // params_panel_description
 }
@@ -18,7 +17,6 @@ export default function CalculatorExportPrompt({
   open,
   onClose,
   params,
-  conditionals,
   cols,
 }: CalculatorExportPromptProps){
 
@@ -36,7 +34,6 @@ export default function CalculatorExportPrompt({
         defaultValue={
           JSON.stringify({
             params,
-            conditionals,
             cols,
           })
         }
@@ -47,7 +44,6 @@ export default function CalculatorExportPrompt({
 
 CalculatorExportPrompt.Button = function CalculatorExportPromptButton({
   params,
-  conditionals,
   cols,
 }: CalculatorExportPromptProps){
   const [
@@ -62,7 +58,6 @@ CalculatorExportPrompt.Button = function CalculatorExportPromptButton({
         open={openCalculatorExportPrompt}
         onClose={() => setOpenCalculatorExportPrompt(false)}
         params={params}
-        conditionals={conditionals}
         cols={cols}
       />
       <Button onClick={() => {

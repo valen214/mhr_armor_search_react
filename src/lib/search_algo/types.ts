@@ -15,19 +15,12 @@ export type ParamsType = Partial<{
   "absorption_elem": number
   "sharpness_elem": number
 
-
-  [name: string]: any
-}>
-
-
-export type ConditionalTypes = Partial<{
   "powercharm": boolean
   "powertalon": boolean
-  [ condition: string ]: boolean
+  [ param: string ]: any
 }>
 
 export type WorkerArgType = {
   skills?: Skills,
   params?: ParamsType;
-  conditionals?: ConditionalTypes
 }

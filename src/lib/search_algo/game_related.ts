@@ -2,7 +2,7 @@ import type { ParamsType, Skills, WorkerArgType } from "./types";
 
 
 export function crit(arg: WorkerArgType){
-  let { skills, conditionals, params } = arg;
+  let { skills, params } = arg;
 
   let crit = 0;
 
@@ -21,7 +21,6 @@ export function crit(arg: WorkerArgType){
 
 export function status_phy({
   skills,
-  conditionals,
   params
 }: WorkerArgType){
   let phy = params?.["weapon_phy"] || 0;
@@ -38,14 +37,14 @@ export function status_phy({
 
   phy += params?.petalaces || 0;
 
-  if(conditionals?.powercharm) phy += 6;
-  if(conditionals?.powertalon) phy += 9;
+  if(params?.powercharm) phy += 6;
+  if(params?.powertalon) phy += 9;
 
   return phy;
 }
 
 export function damage_number_phy(arg: WorkerArgType){
-  let { skills, conditionals, params } = arg;
+  let { skills, params } = arg;
   let phy = status_phy(arg);
 
   for(let req_param of [
@@ -71,13 +70,13 @@ export function damage_number_phy(arg: WorkerArgType){
 }
 
 export function status_elem(arg: WorkerArgType){
-  let { skills, conditionals, params } = arg;
+  let { skills, params } = arg;
   let elem = params?.["weapon_elem"] || 0;
 
   return elem;
 }
 export function damage_number_elem(arg: WorkerArgType){
-  let { skills, conditionals, params } = arg;
+  let { skills, params } = arg;
 
   let elem = status_elem(arg);
 

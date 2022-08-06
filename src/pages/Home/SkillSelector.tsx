@@ -102,7 +102,7 @@ packages/mui-utils/src/useControlled.js
   };
 
 // https://stackoverflow.com/a/62897933/3142238
-  return useMemo(() => (
+  return (
     <FormControl
       variant="filled"
       margin="dense"
@@ -163,5 +163,5 @@ packages/mui-utils/src/useControlled.js
         }
       </NativeSelect>
     </FormControl>
-  ), [ _skillName, skillId, internalLv, _maxLv]);
+  );
 }
