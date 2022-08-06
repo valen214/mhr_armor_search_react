@@ -19,7 +19,8 @@ import ParametersPanel from "./ParametersPanel";
 import FullPageElement from "../../../lib/my_components/src/FullPageElement";
 import { style } from "../../../lib/my_components/src/util/react_util";
 import CalculatorExportPrompt from "./CalculatorExportPrompt";
-import AddColumnPrompt from "./AddColumnPrompt";
+import AddColumnPrompt from "./EditColumnPrompt";
+import EditColumnPrompt from "./EditColumnPrompt";
 
 const StyledDataCalcScreenRoot = styled.div`
   height: 100%;
@@ -63,6 +64,14 @@ const StyledSkillsProfile = styled.div``;
 export const ParamsContext = (
   createContext<[ ParamsType, (c: ParamsType) => void ]>([ {}, () => {} ])
 );
+
+export type ColumnDescriptionType = {
+  field: string
+  headername: string
+  width?: number
+} & {
+  stat_id?: string
+}
 
 /*
 really don't want to use MUI but I need to get it up quick
@@ -176,20 +185,16 @@ export default function DataCaculatorScreen(){
             <CalculatorExportPrompt.Button
               params={params}
               cols={cols}
+              setParams={setParams}
+              setCols={setCols}
             />
           </StyledTopBar>
           <ParametersPanel open={openParamsPanel}/>
-          <StyledSkillsProfilesHeader>
-            {cols.map(col => (
-              <StyledSkillsProfilesHeaderCell
-                // @ts-ignore
-                key={col.stat_id || col.field}
-                width={col.width}
-              >
-                { col.headername }
-              </StyledSkillsProfilesHeaderCell>
-            ))}
-          </StyledSkillsProfilesHeader>
+          <SkillsProfilesHeader
+            cols={cols} 
+            //@ts-ignore
+            setCols={setCols}
+          />
           <StyledSkillsProfilesContainer>
             {skillsProfiles.map((prof, i) => (
               <SkillsProfileRow
@@ -208,4 +213,48 @@ export default function DataCaculatorScreen(){
   )
 }
 
-addEventListener
+
+function SkillsProfilesHeader({
+  cols,
+  setCols,
+}: {
+  cols: ColumnDescriptionType[]
+  setCols: (cols: ColumnDescriptionType[]) => void
+}){
+
+  const [ editCol, setEditCol ] = useState<ColumnDescriptionType | undefined>();
+  
+  return (
+    <>
+      <EditColumnPrompt
+        edit={true}
+        col={editCol}
+        open={!!editCol}
+        onClose={() => {
+          setEditCol(undefined);
+        }}
+      />
+      <StyledSkillsProfilesHeader>
+        {cols.map((col, i) => (
+          <StyledSkillsProfilesHeaderCell
+            // @ts-ignore
+            key={col.stat_id || col.field}
+            width={col.width || 120}
+            style={{
+              cursor: i >= 4 ? "pointer" : undefined
+            }}
+
+            onClick={() => {
+              if(i < 4) return;
+
+              setEditCol(col);
+            }}
+          >
+            { col.headername }
+          </StyledSkillsProfilesHeaderCell>
+        ))}
+
+      </StyledSkillsProfilesHeader>
+    </>
+  );
+}

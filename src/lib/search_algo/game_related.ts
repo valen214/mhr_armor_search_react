@@ -35,6 +35,15 @@ export function status_phy({
   case 7: phy *= 1.10; phy += 10; break;
   }
 
+  phy += [0, 4, 8, 12, 16, 20][skills?.[2] || 0] || 0 // agitator
+  phy += [0, 5, 10, 20][skills?.[3] || 0] || 0 // max performance
+  phy += [0, 5, 10, 15, 20, 25][skills?.[4] || 0] || 0 // resentment
+  phy += [0, 5, 10, 20][skills?.[5] || 0] || 0 // resuscitate
+  phy += [0, 10, 15, 25][skills?.[106] || 0] || 0 // counterstrike
+  phy += [0, 0, 0, 0][skills?.[116] || 0] || 0 // coalescence
+  phy += [0, 10, 12, 15][skills?.[131] || 0] || 0 // chain hit
+
+
   phy += params?.petalaces || 0;
 
   if(params?.powercharm) phy += 6;

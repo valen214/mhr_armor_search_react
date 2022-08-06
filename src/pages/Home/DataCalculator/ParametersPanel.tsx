@@ -20,7 +20,7 @@ const StyledParametersPanel = styled.div`
   padding-bottom: 50px;
 `;
 
-const PANEL_DESCRIPTION: Array<{
+const PARAMS_PANEL_DESCRIPTION: Array<{
   type: "number"
   text: string
   param: keyof ParamsType | string
@@ -177,7 +177,7 @@ export default function ParametersPanel({
       flexShrink: 0
     }}>
       <StyledParametersPanel>
-        {PANEL_DESCRIPTION.map(desp => {
+        {PARAMS_PANEL_DESCRIPTION.map(desp => {
           switch(desp.type){
           case "number":
             return (
@@ -231,7 +231,7 @@ export default function ParametersPanel({
                 <Select
                   label={desp.text}
                   defaultValue={params[desp.param] || desp.default}
-                  value={params[desp.param]}
+                  value={params[desp.param] || desp.default}
                   onChange={(event: SelectChangeEvent) => {
                     let value = event.target.value;
                     setParams({

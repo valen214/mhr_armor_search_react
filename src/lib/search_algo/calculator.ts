@@ -16,9 +16,10 @@ export class SkillsProfile
   name: string;
   skills: Skills;
 
-  constructor(skills: Skills){
+
+  constructor(skills: Skills, name?: string){
     this.id = (
-      // crypto?.randomUUID() ||
+      crypto?.randomUUID?.() ||
       String(++SkillsProfile.count)
     );
     let self_skills: Skills = this.skills = {};
@@ -26,7 +27,11 @@ export class SkillsProfile
       if(v) self_skills[s] = v;
     }
 
-    this.name = "profile " + (++SkillsProfile.count);
+    if(name){
+      this.name = name;
+    } else{
+      this.name = "profile " + (++SkillsProfile.count);
+    }
   }
 }
 export class StatProfile<R>
@@ -35,18 +40,21 @@ export class StatProfile<R>
 
   readonly id: string;
   name?: string;
-  private worker: WorkerWrapper<WorkerArgType, R>;
+  private _worker: WorkerWrapper<WorkerArgType, R>;
+  public get worker(){
+    return this._worker;
+  }
 
   constructor(
     func: ((arg: WorkerArgType) => R) | string,
     name?: string,
   ){
     this.id = (
-      // crypto?.randomUUID() || 
+      crypto?.randomUUID?.() || 
       String(++StatProfile.count)
     );
     this.name = name;
-    this.worker = new WorkerWrapper(func);
+    this._worker = new WorkerWrapper(func);
   }
 
   public calc(arg: Partial<WorkerArgType>){
@@ -61,8 +69,22 @@ export class StatProfile<R>
     return this.worker.postMessage(_arg);
   }
 
+  public destroy(){
+    this.worker.terminate();
+  }
   public resetWorker(){
-    this.worker.resetWorker();
+    return this.worker.resetWorker();
+  }
+
+  public export(){
+    return {
+      id: this.id,
+      name: this.name,
+      worker_src: this.worker.input_src,
+    };
+  }
+  public toString(){
+    return JSON.stringify(this.export())
   }
 }
 
@@ -90,6 +112,47 @@ extends (EventEmitter as new () => TypedEmitter<{
       for(let prof of default_stat_profiles){
         this.stat_profiles.set(prof.id, prof);
       }
+    }
+  }
+
+  export(){
+    return ({
+      skills_profiles: this.skills_profiles,
+      stat_profiles: [
+        ...this.stat_profiles.values()
+      ].map(prof => {
+        return prof.export()
+      })
+    })
+  }
+  importFrom(calc: {
+    skills_profiles: SkillsProfile[]
+    stat_profiles: {
+      id: string;
+      name: string | undefined;
+      worker_src: string;
+    }[]
+  }){
+    this.skills_profiles.length = 0;
+    for(let inProf of calc.skills_profiles){
+      let prof = new SkillsProfile(inProf.skills, inProf.name);
+      // @ts-ignore
+      prof.id = inProf.id;
+      this.skills_profiles.push(prof);
+    }
+
+    for(let prof of this.stat_profiles.values()){
+      prof.destroy();
+    }
+    this.stat_profiles.clear();
+    for(let inProf of calc.stat_profiles){
+      let prof = new StatProfile(
+        inProf.worker_src,
+        inProf.name
+      );
+      // @ts-ignore
+      prof.id = inProf.id;
+      this.stat_profiles.set(prof.id, prof);
     }
   }
 

@@ -46,26 +46,17 @@ export function useStatProfile(id: string){
 }
 
 export function useStatProfiles(){
-  const statProfRef = useRef<{
-    statProfiles: Map<string, StatProfile<any>>
-  }>({
-    statProfiles: DEFAULT_CALCULATOR.getStatProfiles()
-  });
-  const { statProfiles } = useSyncExternalStore(
+  const statProfRef = useRef<
+    Map<string, StatProfile<any>>
+  >(
+    DEFAULT_CALCULATOR.getStatProfiles()
+  );
+  const statProfiles = useSyncExternalStore(
     (onStoreChange) => {
       const statProfChangeListener = () => {
-        console.assert(
-            statProfRef.current.statProfiles ===
-            DEFAULT_CALCULATOR.getStatProfiles(),
-            "statProfChangeListener: ref value unmatch",
-        );
-        console.log(
-          "statProfChangeListener:",
+        statProfRef.current = new Map(
           DEFAULT_CALCULATOR.getStatProfiles()
         );
-        statProfRef.current = {
-          statProfiles: DEFAULT_CALCULATOR.getStatProfiles()
-        };
         onStoreChange();
       };
 
