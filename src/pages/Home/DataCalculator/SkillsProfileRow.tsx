@@ -9,7 +9,7 @@ import React, {
 import styled from "styled-components";
 
 
-import type { SkillsProfile } from "../../../lib/search_algo/calculator";
+import { DEFAULT_CALCULATOR, SkillsProfile } from "../../../lib/search_algo/calculator";
 import { useStrings } from "../../../lang/useStrings";
 import { translateSkills } from "../../../lang/translateSkills";
 import { useStatProfiles } from "./useProfiles";
@@ -54,7 +54,6 @@ export default function SkillsProfileRow({
   cols: Array<{ field: string, headername: string, width: number }>
 }){
   const strings = useStrings();
-  const statProfiles = useStatProfiles();
   
   const [ params, setParams ] = useContext(ParamsContext);
   
@@ -125,7 +124,7 @@ export default function SkillsProfileRow({
       </StyledSkillsProfilesRowCell>
       {cols.slice(2).map((col, i) => {
         // @ts-ignore
-        let prof = statProfiles.get(col.stat_id);
+        let prof = DEFAULT_CALCULATOR.getStatProfile(col.stat_id);
         return (
           <StyledSkillsProfilesRowCell 
           // @ts-ignore

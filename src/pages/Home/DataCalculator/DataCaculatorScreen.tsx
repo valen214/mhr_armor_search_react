@@ -42,6 +42,7 @@ const StyledSkillsProfilesHeader = styled.div`
   display: flex;
   flex-direction: row;
   box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.2);
+  overflow: auto;
 `;
 const StyledSkillsProfilesContainer = styled.div`
   overflow: auto;
@@ -57,7 +58,8 @@ const StyledBottomBar = styled.div`
 const StyledSkillsProfilesHeaderCell = styled.div<{
   width: number
 }>`
-  width: ${props => props.width}px
+  width: ${props => props.width}px;
+  flex-shrink: 0;
 `;
 const StyledSkillsProfile = styled.div``;
 

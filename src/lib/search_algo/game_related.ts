@@ -8,6 +8,7 @@ export function crit(arg: WorkerArgType){
 
   if(skills){
     crit += [ 0, 3, 5, 7, 10, 15 ][ skills[2] ] || 0;
+    crit += [ 0, 5, 10, 15, 20, 25, 30, 40 ][ skills[6] ] || 0;
     crit += [ 0, 15, 30, 50 ][ skills[8] ] || 0;
     crit += [ 0, 10, 20, 30, 40, 50 ][ skills[9] ] || 0;
     crit += [ 0, 10, 20, 30 ][ skills[10] ] || 0;

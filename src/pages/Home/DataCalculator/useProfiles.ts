@@ -5,20 +5,37 @@ import {
   getSkillsProfiles,
   DEFAULT_CALCULATOR,
   getStatProfiles,
-  StatProfile
+  StatProfile,
+  SkillsProfile
 } from "../../../lib/search_algo";
 
 
 
 export function useSkillsProfiles(){
+  const skillsProfRef = useRef<SkillsProfile[]>(
+    DEFAULT_CALCULATOR.getSkillsProfiles()
+  );
   const skillsProfiles = useSyncExternalStore(
     (onStoreChange) => {
-      DEFAULT_CALCULATOR.on("profiles change", onStoreChange);
+      const skillsProfChangeListener = () => {
+        skillsProfRef.current = [
+          ...DEFAULT_CALCULATOR.getSkillsProfiles()
+        ];
+        onStoreChange();
+      };
+
+      DEFAULT_CALCULATOR.on(
+        "profiles change",
+        skillsProfChangeListener
+      );
       return () => {
-        DEFAULT_CALCULATOR.off("profiles change", onStoreChange);
+        DEFAULT_CALCULATOR.off(
+          "profiles change",
+          skillsProfChangeListener
+        );
       }
     },
-    () => getSkillsProfiles()
+    () => skillsProfRef.current
   )
 
   return skillsProfiles;

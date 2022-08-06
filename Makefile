@@ -4,6 +4,14 @@
 serve:
 	yarn run start
 
+build: src\*.*
+	yarn run build
+
+serve_build:
+	yarn nodemon server/index.ts
+
+deploy:
+	yarn run deploy
 
 run:
 	yarn run start

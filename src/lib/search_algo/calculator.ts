@@ -6,7 +6,10 @@ import type TypedEmitter from "typed-emitter"
 import WorkerWrapper from "../my_components/src/util/WorkerWrapper";
 
 import type { WorkerArgType, Skills } from "./types";
-import { crit, damage_number_elem, damage_number_phy, status_elem, status_phy } from "./game_related";
+import {
+  crit, damage_number_elem,
+  damage_number_phy, status_elem, status_phy
+} from "./game_related";
 
 export class SkillsProfile
 {
@@ -222,7 +225,7 @@ permalink_comment_id=3470400#gistcomment-3470400
 */
 
 // console.log(status_phy.toString(), damage_number_phy.toString());
-console.log(import.meta.url);
+// console.log(import.meta.url);
 
 let storedProfiles = (() => {
   let json = localStorage.getItem("skills_profiles");
@@ -239,23 +242,25 @@ let storedProfiles = (() => {
 let storedStatProfiles = (() => {
   return [
     new StatProfile(crit, "Crit"),
-    new StatProfile(((arg: WorkerArgType) => {
-      // @ts-ignore
-      let phy = _damage_number_phy(arg)
-
-      // @ts-ignore
-      let elem = _damage_number_elem(arg)
+    new StatProfile('(' + (
+    (_dnp: typeof damage_number_phy,
+    _dne: typeof damage_number_elem) => (arg: WorkerArgType) => {
+      let phy = _dnp(arg)
+      let elem = _dne(arg)
 
       return (
-        `${Math.round(phy + elem)} (${elem.toFixed(1)})`
+        `${
+          typeof phy === "number"?
+          Math.round(phy + elem) : phy
+        } (${elem.toFixed(1)})`
       );
-    }).toString() + [
+    }).toString() +
+    `)(${damage_number_phy}, ${damage_number_elem});` + [
       `;`,
-      `const status_phy = ${status_phy};`,
-      `const _damage_number_phy = ${damage_number_phy};`,
-
-      `const status_elem = ${status_elem};`,
-      `const _damage_number_elem = ${damage_number_elem};`,
+      `${status_phy};`,
+// `${damage_number_phy};`, `const _dnp = ${damage_number_phy.name};`,
+      `${status_elem};`, 
+// `${damage_number_elem};`, `const _dne = ${damage_number_elem.name};`,
     ].join(""), "Total Damage"),
   ];
 })();
