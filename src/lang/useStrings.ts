@@ -11,6 +11,7 @@ export function useStrings(){
   useEffect(() => {
     addLoadedListener(() => {
       setStringsContainer({ strings })
+      console.log("strings notified");
     })
   }, [])
 

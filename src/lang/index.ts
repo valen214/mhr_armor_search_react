@@ -106,8 +106,8 @@ export function getSkillMaxLevel(skillId: number){
 
 function init(){
   Promise.allSettled([
-    "/lang/skills_en.csv",
-    "/lang/skills_zh.csv",
+    process.env.PUBLIC_URL + "/lang/skills_en.csv",
+    process.env.PUBLIC_URL + "/lang/skills_zh.csv",
   ].map(url => fetch(url))
   ).then(results => {
     let out: { [lang: string]: Promise<string> } = {};
@@ -115,7 +115,7 @@ function init(){
     for(let result of results){
       if(result.status === "fulfilled"){
         let value = result.value;
-        let lang = value.url.match(/_([^.]+)\.csv/i);
+        let lang = value.url.match(/_([^.]{2})\.csv$/i);
         if(lang?.[1]){
           out[lang[1]] = result.value.text();
         }
@@ -151,7 +151,6 @@ function init(){
       out[entry[0]] = skillsMap;
     }
   
-    console.log(out);
     (window as any)["strings"] = strings;
   
     let transformedOut = Object.fromEntries(
@@ -163,10 +162,10 @@ function init(){
     );
     strings.setContent(transformedOut);
   
-    console.log("lang.ts: extra csv loaded for strings");
-    
     strings.setLanguage("zh");
     notifyLoaded();
+  }).catch(e => {
+    console.error("error in loading translations:", e);
   })
 }
 init();
