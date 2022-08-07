@@ -138,8 +138,6 @@ export default function DataCaculatorScreen(){
       })
     }
     setCols([
-      { field: "profileName", headername: "Profile Name", width: 140 },
-      { field: "skills", headername: "Skills", width: 300 },
       {
         field: "stat", headername: "Crit%",
         width: 80,

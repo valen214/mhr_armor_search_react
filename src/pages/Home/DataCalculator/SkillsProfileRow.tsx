@@ -97,7 +97,7 @@ export default function SkillsProfileRow({
         style={{
           "cursor": "pointer",
         }}
-        width={cols[0].width}
+        width={140}
         onClick={(e) => {
           console.log(e.target);
           let {
@@ -115,14 +115,14 @@ export default function SkillsProfileRow({
         {profile.name}
       </StyledSkillsProfilesRowCell>
       <StyledSkillsProfilesRowCell
-          width={cols[1].width}
+          width={300}
           onClick={() => {
 
           }}
       >
         {JSON.stringify(translateSkills(strings, profile.skills))}
       </StyledSkillsProfilesRowCell>
-      {cols.slice(2).map((col, i) => {
+      {cols.map((col, i) => {
         // @ts-ignore
         let prof = DEFAULT_CALCULATOR.getStatProfile(col.stat_id);
         return (
