@@ -13,10 +13,10 @@ import { DEFAULT_CALCULATOR, SkillsProfile } from "../../../lib/search_algo/calc
 import { useStrings } from "../../../lang/useStrings";
 import { translateSkills } from "../../../lang/translateSkills";
 import { useStatProfiles } from "./useProfiles";
-import PromiseChild from "../../../lib/my_components/src/PromiseChild";
+import PromiseChild from "mylib/src/PromiseChild";
 import { ParamsContext } from "./DataCaculatorScreen";
-import FullPageElement from "../../../lib/my_components/src/FullPageElement";
-import { Button } from "../../../lib/my_components";
+import FullPageElement from "mylib/src/FullPageElement";
+import { Button } from "mylib";
 import { removeSkillsProfile } from "../../../lib/search_algo";
 
 const StyledSkillsProfileRow = styled.div`

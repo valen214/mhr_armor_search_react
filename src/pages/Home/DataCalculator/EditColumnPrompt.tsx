@@ -10,8 +10,8 @@ import Editor, {
   loader
 } from '@monaco-editor/react';
 
-import FullPageElement from "../../../lib/my_components/src/FullPageElement";
-import { style } from "../../../lib/my_components/src/util/react_util";
+import FullPageElement from "mylib/src/FullPageElement";
+import { style } from "mylib/src/util/react_util";
 import { DEFAULT_CALCULATOR } from "../../../lib/search_algo";
 import { ColumnDescriptionType } from "./DataCaculatorScreen";
 

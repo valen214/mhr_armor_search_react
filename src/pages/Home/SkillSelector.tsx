@@ -14,10 +14,10 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import NativeSelect from "@mui/material/NativeSelect";
 
 
-import { style } from "../../lib/my_components/src/util/react_util";
+import { style } from "mylib/src/util/react_util";
 import strings, { addLoadedListener, getSkillMaxLevel } from "../../lang";
 import { SkillsContext } from "./ManualSearchScreen";
-import { useControlled } from "../../lib/my_components";
+import { useControlled } from "mylib";
 
 
 const StyledInputLabel = styled(InputLabel)(({ theme }) => ({

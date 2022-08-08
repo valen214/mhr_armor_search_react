@@ -3,7 +3,7 @@
 import { EventEmitter } from "events";
 import type TypedEmitter from "typed-emitter"
 
-import WorkerWrapper from "../my_components/src/util/WorkerWrapper";
+import WorkerWrapper from "mylib/util/WorkerWrapper";
 
 import type { WorkerArgType, Skills } from "./types";
 import {

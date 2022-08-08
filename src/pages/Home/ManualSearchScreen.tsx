@@ -13,8 +13,8 @@ import styled from "styled-components";
 
 import strings from "../../lang";
 import { useStrings } from "../../lang/useStrings";
-import { Button } from "../../lib/my_components";
-import { style } from "../../lib/my_components/src/util/react_util";
+import { Button } from "mylib";
+import { style } from "mylib";
 import {
   addSkillsProfile, getSkillsProfiles
 } from "../../lib/search_algo";

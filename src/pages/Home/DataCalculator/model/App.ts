@@ -2,8 +2,8 @@
 import EventEmitter from "events";
 import type TypedEmitter from "typed-emitter"
 
-import { randomstring } from "../../../../lib/my_components/src/util/string"
-import WorkerWrapper from "../../../../lib/my_components/src/util/WorkerWrapper";
+import { randomstring } from "mylib/src/util/string"
+import WorkerWrapper from "mylib/src/util/WorkerWrapper";
 import { Skills } from "../../../../lib/search_algo"
 import type { ParamsType, WorkerArgType } from "../../../../lib/search_algo/types";
 

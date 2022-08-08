@@ -6,7 +6,7 @@ import styled from "styled-components";
 import Button from "@mui/material/Button";
 
 
-import FullPageElement from "../../../lib/my_components/src/FullPageElement";
+import FullPageElement from "mylib/src/FullPageElement";
 import { ParamsType } from "../../../lib/search_algo/types";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";

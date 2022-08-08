@@ -19,9 +19,25 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "noEmit": false,
+    "jsx": "react-jsx",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    "baseUrl": "src",
+    "paths": {
+      "@mylib/*": [
+        "./lib/mylib/*",
+      ],
+      "mylib/*": [
+        "./lib/mylib/*",
+      ]
+    }
   },
+  "references": [
+    { "path": "lib/mylib/tsconfig.json" }
+  ],
   "include": [
     "src"
   ],

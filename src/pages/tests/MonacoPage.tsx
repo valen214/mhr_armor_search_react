@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import MonacoEditor from '@monaco-editor/react';
-import FullPageElement from "../../lib/my_components/src/FullPageElement";
+import FullPageElement from "mylib/FullPageElement";
 
 import styled from "styled-components";
 import { Button } from "@mui/material";
