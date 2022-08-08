@@ -1,7 +1,13 @@
+
+import EventEmitter from "events";
+import type TypedEmitter from "typed-emitter"
+
 import { randomstring } from "../../../../lib/my_components/src/util/string"
 import WorkerWrapper from "../../../../lib/my_components/src/util/WorkerWrapper";
 import { Skills } from "../../../../lib/search_algo"
-import { WorkerArgType } from "../../../../lib/search_algo/types";
+import type { ParamsType, WorkerArgType } from "../../../../lib/search_algo/types";
+
+import { ParamsDescriptionType } from "./types";
 
 
 
@@ -92,7 +98,7 @@ export class DataDescription<R>
 
     return this._worker.postMessage(_arg);
   }
-  public destroy(){
+  public dispose(){
     this._worker.terminate();
   }
   public resetWorker(func_src?: string){
@@ -110,13 +116,64 @@ export class DataDescription<R>
 }
 
 
+class SubscriptableDataClass<T extends { id: string }>
+extends (EventEmitter as new () => TypedEmitter<{
+  "profiles change": () => void
+  "stat profiles change": () => void
+
+  "stat profile update": (id: string) => void
+}>)
+{
+  private id_prefix = crypto.randomUUID?.() || randomstring(16);
+  private count = 0;
+  private genId(){ return `${this.id_prefix} (${++this.count})`; }
+
+  private store: Map<string, T> = new Map();
+
+  constructor(arr?: Array<Omit<T, "id"> & { id?: string }>){
+    super();
+    
+    if(arr){
+
+    }
+  }
+
+  get(id?: string){
+    if(id){
+      return this.store.get(id);
+    } else{
+
+    }
+  }
+
+  set(obj: T){
+
+  }
+}
 
 
 
 export class MHRCalculatorApp
 {
+  private _params_desc: Map<string, ParamsDescriptionType> = new Map();
+  get params_desc(){ return this._params_desc; }
 
-  getParamsDescriptions(){
+  constructor(){
+
+  }
+
+
+  getParamsDescriptions(): string[] {
+    
+    return []
+  }
+  addParamsDescription(){
+
+  }
+  setParamsDescriptions(
+    desc: Array<ParamsDescriptionType>,
+    keepId?: boolean
+  ){
     
   }
 
@@ -129,5 +186,9 @@ export class MHRCalculatorApp
   }
 
   getProfilesEntries(){
+  }
+
+  doExport(){
+
   }
 }

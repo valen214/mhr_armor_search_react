@@ -50,6 +50,8 @@ export function status_phy({
   if(params?.powercharm) phy += 6;
   if(params?.powertalon) phy += 9;
 
+  if(params?.demondrug) phy += params.demondrug;
+
   return phy;
 }
 

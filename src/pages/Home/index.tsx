@@ -10,7 +10,7 @@ import ManualSearchScreen from './ManualSearchScreen';
 
 export default function Home() {
   const [ selectedTab, _setSelectedTab ] = useState(() => {
-    if(location.hash.slice(1) === "smart-search"){
+    if(location.hash.slice(1) === "/smart-search"){
       return 1;
     }
     

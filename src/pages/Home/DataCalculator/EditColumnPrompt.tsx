@@ -6,6 +6,10 @@ import styled from "styled-components";
 import { Button } from "@mui/material";
 import TextField from '@mui/material/TextField';
 
+import Editor, {
+  loader
+} from '@monaco-editor/react';
+
 import FullPageElement from "../../../lib/my_components/src/FullPageElement";
 import { style } from "../../../lib/my_components/src/util/react_util";
 import { DEFAULT_CALCULATOR } from "../../../lib/search_algo";
@@ -14,12 +18,80 @@ import { ColumnDescriptionType } from "./DataCaculatorScreen";
 
 const StyledEditColumnPromptBase = styled.div`
   background: white;
+  position: relative;
 `
-const StyledTextarea = styled.textarea`
+const StyledPromptTopPanel = styled.div`
+
+position: relative;
+
+`;
+const StyledEditorContainer = styled.div`
   width: 50vw;
   height: 50vh;
   background: white;
+  position: relative;
+  display: flex;
+  jusify-content: center;
+  align-items: center;
 `
+
+const DEFAULT_FUNC_SRC = `
+/**
+ * @param {WorkerArgType} arg
+ * @param {Skills} arg.skills
+ * @param {ParamsType} arg.params
+ */
+function func({
+  skills,
+  params
+}){
+  
+}
+`;
+
+/*
+https://microsoft.github.io/monaco-editor/
+playground.html#extending-language-services-configure-javascript-defaults
+
+extra libraries
+
+*/
+var libSource = `
+
+type Skills = { [skillId: number | string]: number }
+
+type ParamsType = Partial<{
+  "weapon_phy": number
+  "petalaces": number
+  "motion_value_phy": number
+  "absorption_phy": number
+  "sharpness_phy": number
+
+  "weapon_elem": number
+  "motion_value_elem": number
+  "absorption_elem": number
+  "sharpness_elem": number
+
+  "powercharm": boolean
+  "powertalon": boolean
+  [ param: string ]: any
+}>
+
+type WorkerArgType = {
+  skills?: Skills,
+  params?: ParamsType;
+}
+
+`;
+var libUri = 'ts:search_algo/types.d.ts';
+loader.init().then(monaco => {
+  monaco.languages.typescript.javascriptDefaults.addExtraLib(libSource, libUri);
+  // When resolving definitions and references, the editor will try to use created models.
+  // Creating a model for the library allows "peek definition/references" commands to work with the library.
+  monaco.editor.createModel(libSource, 'typescript', monaco.Uri.parse(libUri));
+}).catch(e => {
+
+});
 
 
 export default function EditColumnPrompt({
@@ -36,16 +108,25 @@ export default function EditColumnPrompt({
   onEditDone?: () => void
 }){
   const [ columnName, setColumnName ] = useState(edit && col?.headername || "");
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [ mounted, setMounted ] = useState(false);
+  const editorRef = useRef<typeof Editor | null>(null);
+  const [ value, setValue ] = useState<string>(DEFAULT_FUNC_SRC);
 
   useEffect(() => {
-    if(!textAreaRef.current) return;
-    
-    console.log("NOT UPDAINTG",
-      col?.stat_id &&
-      DEFAULT_CALCULATOR.getStatProfile(col.stat_id)?.worker.input_src
-    );
+    console.log(editorRef.current);
+    setMounted(true);
 
+    return () => {
+      // editorRef.current?.;
+    }
+
+  }, []);
+
+  useEffect(() => {
+    if(!mounted) return;
+
+    let src = DEFAULT_FUNC_SRC;
+    
     if(edit){
       let id = col?.stat_id;
       if(id){
@@ -54,27 +135,13 @@ export default function EditColumnPrompt({
         let name = col?.headername || prof?.name;
         if(name) setColumnName(name);
 
-        let src = prof?.worker.input_src
-
-        if(src){
-          textAreaRef.current.value = src;
-          return;
-        }
+        src = prof?.worker.input_src || src
       }
     }
 
-    textAreaRef.current.value = (
-`
-function func({
-  skills,
-  params
-}){
-  
-}
-`
-    );
+    setValue(src);
               
-  }, [ open, edit, col ])
+  }, [ mounted, open, edit, col ])
 
   return (
     <FullPageElement
@@ -82,7 +149,7 @@ function func({
       onClose={onClose}
     >
       <StyledEditColumnPromptBase>
-        <div>
+        <StyledPromptTopPanel>
           <TextField
             variant="outlined"
             label="Column Name"
@@ -99,7 +166,7 @@ function func({
                   let prof = DEFAULT_CALCULATOR.getStatProfile(id);
                   if(prof){
                     let success = prof.worker.resetWorker(
-                      textAreaRef.current?.value
+                      value
                     );
                     if(success){
                       col.headername = prof.name = columnName;
@@ -113,7 +180,7 @@ function func({
                 console.error("error in editing column");
               } else{
                 DEFAULT_CALCULATOR.addStatProfile(
-                  textAreaRef.current?.value || "",
+                  value || "",
                   columnName
                 );
               }
@@ -125,12 +192,23 @@ function func({
           <div style={{
             float: "right"
           }}>
+            { edit && <Button onClick={() => {
+              let id = col!.stat_id!
+              DEFAULT_CALCULATOR.removeStatProfile(id);
+              onClose();
+            }}>Delete</Button>}
             <Button onClick={() => onClose()}>Close</Button>
           </div>
-        </div>
-        <StyledTextarea
-          ref={textAreaRef}
-        />
+        </StyledPromptTopPanel>
+        <StyledEditorContainer>
+          {mounted && <Editor
+            language="javascript"
+            value={value}
+            onChange={(_val, e) => {
+              setValue(_val || "");
+            }}
+          />}
+        </StyledEditorContainer>
       </StyledEditColumnPromptBase>
     </FullPageElement>
   )

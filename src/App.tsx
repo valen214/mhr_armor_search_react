@@ -1,10 +1,26 @@
 import React, { useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Button,  util } from './lib/my_components';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
 import Home from './pages/Home';
+import MonacoPage from './pages/tests/MonacoPage';
 
 export default function App() {
+  useMyStyle();
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="monaco_test" element={<MonacoPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+
+function useMyStyle(){
   useEffect(() => {
     // global style
     let style: HTMLStyleElement = document.createElement("style");
@@ -28,27 +44,9 @@ export default function App() {
     document.head.appendChild(style);
 
 
-    let roboto_font = document.createElement("link");
-    roboto_font.rel = "stylesheet";
-    roboto_font.href="https://fonts.googleapis.com/css?" +
-        "family=Roboto:300,400,500,700&display=swap";
-    document.head.appendChild(roboto_font);
-
-    let icon_font = document.createElement("link");
-    icon_font.rel = "stylesheet";
-    icon_font.href="https://fonts.googleapis.com" +
-        "/icon?family=Material+Icons";
-    document.head.appendChild(icon_font);
     
-    console.log("LOADED");
     return () => {
       document.head.removeChild(style);
-      document.head.removeChild(roboto_font);
-      document.head.removeChild(icon_font);
     }
   }, [])
-  return (
-    <Home />
-  );
 }
-

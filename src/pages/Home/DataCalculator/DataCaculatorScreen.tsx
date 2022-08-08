@@ -105,8 +105,6 @@ export default function DataCaculatorScreen(){
 
   const statProfiles = useStatProfiles();
   const [ cols, setCols ] = useState(() => [
-    { field: "profileName", headername: "Profile Name", width: 140 },
-    { field: "skills", headername: "Skills", width: 300 },
     {
       field: "stat", headername: "Crit%",
       width: 80,
@@ -150,7 +148,7 @@ export default function DataCaculatorScreen(){
         stat_id: skip_damage
       },
       // @ts-ignore
-      ...added
+      ...added.filter(col => !/^(Crit%?)|(Total Damage)$/i.test(col.headername))
     ])
 
     console.log("statProfiles update, added:", added);
@@ -235,17 +233,27 @@ function SkillsProfilesHeader({
         }}
       />
       <StyledSkillsProfilesHeader>
+        <StyledSkillsProfilesHeaderCell
+          width={120}
+        >
+          Profile
+        </StyledSkillsProfilesHeaderCell>
+        <StyledSkillsProfilesHeaderCell
+          width={300}
+        >
+          Skills
+        </StyledSkillsProfilesHeaderCell>
         {cols.map((col, i) => (
           <StyledSkillsProfilesHeaderCell
             // @ts-ignore
             key={col.stat_id || col.field}
             width={col.width || 120}
             style={{
-              cursor: i >= 4 ? "pointer" : undefined
+              cursor: i >= 2 ? "pointer" : undefined
             }}
 
             onClick={() => {
-              if(i < 4) return;
+              if(i < 2) return;
 
               setEditCol(col);
             }}

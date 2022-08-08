@@ -109,7 +109,7 @@ export default function ManualSearchScreen({
         <Button>Set Charms</Button>
         <Button onClick={() => {
           setCollapseAll(!collapseAll);
-        }}>{ collapseAll ? "Expand" : "Collapse" } All</Button>
+        }}>{ collapseAll ? "Collapse" : "Expand" } All</Button>
         <Button onClick={() => {
           dispatch({ type: "reset" })
         }}>Reset Skills</Button>

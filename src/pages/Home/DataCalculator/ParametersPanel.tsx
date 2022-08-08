@@ -1,6 +1,6 @@
 
 
-import React, { ChangeEvent, ReactComponentElement, ReactNode, useContext } from "react"
+import React, { ChangeEvent, CSSProperties, ReactComponentElement, ReactNode, useContext, useState } from "react"
 import styled from "styled-components";
 import Collapse from '@mui/material/Collapse';
 import TextField from '@mui/material/TextField';
@@ -11,6 +11,8 @@ import type { ParamsType } from "../../../lib/search_algo/types";
 import { Button, FormControl, FormControlLabel, InputLabel, MenuItem, Select, SelectChangeEvent, Switch } from "@mui/material";
 import { useStrings } from "../../../lang/useStrings";
 import FullPageElement from "../../../lib/my_components/src/FullPageElement";
+import { style } from "../../../lib/my_components/src/util/react_util";
+import { ParamsDescriptionType } from "./model/types";
 
 const StyledParametersPanel = styled.div`
   flex-shrink: 0;
@@ -20,30 +22,7 @@ const StyledParametersPanel = styled.div`
   padding-bottom: 50px;
 `;
 
-const PARAMS_PANEL_DESCRIPTION: Array<{
-  type: "number"
-  text: string
-  param: keyof ParamsType | string
-} | {
-  type: "toggle",
-  text: string,
-  param: keyof ParamsType | string
-  default?: boolean
-} | {
-  type: "options",
-  text: string,
-  param: keyof ParamsType | string,
-  default: number | string
-  options: Array<number | string | {
-    text: string,
-    value: number | string,
-    default?: boolean
-  }>
-} | {
-  type: "other",
-  text: string,
-  component: () => JSX.Element
-}> = [
+const PARAMS_PANEL_DESCRIPTION: Array<ParamsDescriptionType<true>> = [
   {
     type: "number",
     text: "Weapon Phy",
@@ -53,9 +32,39 @@ const PARAMS_PANEL_DESCRIPTION: Array<{
     text: "Weapon Elem",
     param: "weapon_elem",
   }, {
-    type: "other",
+    type: "mul-val-options",
     text: "Sharpness",
-    component: SharpnessSelector
+    params: [ "sharpness_phy", "sharpness_elem" ],
+    defaultIndex: 5,
+    options: [{
+      text: "Red",
+      values: [0.50, 0.25],
+      style: "background: #d92c2c;"
+    }, {
+      text: "Orange",
+      values: [0.75, 0.50],
+      style: "background: #d9662c;"
+    }, {
+      text: "Yellow",
+      values: [1.00, 0.75],
+      style: "background: #d9d12c;"
+    }, {
+      text: "Green",
+      values: [1.05, 1.00],
+      style: "background: #70d92c;"
+    }, {
+      text: "Blue",
+      values: [1.20, 1.0625],
+      style: "background: #2c86d9;"
+    }, {
+      text: "White",
+      values: [1.32, 1.15],
+      style: "background: #ffffff;"
+    }, {
+      text: "Purple",
+      values: [1.39, 1.25],
+      style: "background: #cc99ff;"
+    }]
   }, {
     type: "number",
     text: "motion value (phy)",
@@ -262,6 +271,15 @@ export default function ParametersPanel({
                 </Select>
               </FormControl>
             )
+          case "mul-val-options":
+            return (
+              <MultiValueOption
+                key={desp.text}
+                desp={desp}
+                params={params}
+                setParams={setParams}
+              />
+            );
           case "other":
             return <desp.component key={desp.text} />
           }
@@ -271,6 +289,88 @@ export default function ParametersPanel({
   )
 }
 
+
+function MultiValueOption({
+  desp,
+  params,
+  setParams
+}: {
+  desp: typeof PARAMS_PANEL_DESCRIPTION[number] & {
+    type: "mul-val-options",
+  }
+  params: Partial<ParamsType>
+  setParams: (params: Partial<ParamsType>) => void
+}){
+  let {
+    text, width, params: paramNames,
+    defaultIndex, options
+  } = desp;
+
+  let currentValues = paramNames.map(n => params[n]);
+  let selectedValue = currentValues.every(v => !!v) ? (
+    JSON.stringify(currentValues)
+  ) : JSON.stringify(options[defaultIndex].values);
+
+  const [ selectedIndex, setSelectedIndex ] = useState(-1);
+
+  return (
+    <FormControl
+      key={text}
+      sx={{
+        minWidth: width || "120px",
+        ...(s => {
+          if(typeof s === "string") return style(s);
+          if(typeof s === "object") return s;
+          return;
+        })(options[selectedIndex]?.style),
+      }} 
+    >
+      <InputLabel>{text}</InputLabel>
+      <Select
+        label={text}
+        value={selectedValue}
+        onChange={(event: SelectChangeEvent) => {
+          ((target: HTMLElement) => {
+            if(!target) return;
+            let v = target.getAttribute("data-index");
+            if(!v) return;
+            let i = parseInt(v);
+            if(!i && (i !== 0)) return;
+            setSelectedIndex(i)
+          // @ts-ignore
+          })(event.explicitOriginalTarget)
+
+          let values = JSON.parse(event.target.value);
+          let newParams = { ...params };
+          for(let i = 0; i < paramNames.length; ++i){
+            newParams[paramNames[i]] = values[i];
+          }                    
+          setParams(newParams);
+        }}
+      >
+        {desp.options.map(({
+          text, values, style: _style
+        }, i) => {
+          if(typeof _style === "string"){
+            _style = style(_style);
+          }
+
+          return (
+            <MenuItem
+              key={text}
+              value={JSON.stringify(values)}
+              style={_style}
+              data-name={i}
+              data-index={i}
+            >
+              {text}
+            </MenuItem>
+          )
+        })}
+      </Select>
+    </FormControl>
+  )
+}
 
 export function EditParametersPanel(){
   return (

@@ -215,6 +215,12 @@ extends (EventEmitter as new () => TypedEmitter<{
 
     this.emit("stat profiles change");
   }
+  removeStatProfile(arg: string | StatProfile<any>){
+    let id = typeof arg === "string" ? arg : arg.id;
+    this.stat_profiles.delete(id);
+    
+    this.emit("stat profiles change");
+  }
 }
 
 
