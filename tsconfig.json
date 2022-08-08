@@ -27,16 +27,18 @@
 
     "baseUrl": "src",
     "paths": {
-      "@mylib/*": [
-        "./lib/mylib/*",
-      ],
       "mylib/*": [
-        "./lib/mylib/*",
+        "lib/mylib/src/*",
+      ],
+      "mylib": [
+        "lib/mylib/src/index.ts",
       ]
     }
   },
   "references": [
+    /*
     { "path": "lib/mylib/tsconfig.json" }
+    */
   ],
   "include": [
     "src"

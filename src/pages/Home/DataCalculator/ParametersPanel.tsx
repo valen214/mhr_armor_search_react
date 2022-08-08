@@ -10,8 +10,8 @@ import { ParamsContext } from "./DataCaculatorScreen"
 import type { ParamsType } from "../../../lib/search_algo/types";
 import { Button, FormControl, FormControlLabel, InputLabel, MenuItem, Select, SelectChangeEvent, Switch } from "@mui/material";
 import { useStrings } from "../../../lang/useStrings";
-import FullPageElement from "mylib/src/FullPageElement";
-import { style } from "mylib/src/util/react_util";
+import FullPageElement from "mylib/FullPageElement";
+import { style } from "mylib/util/react_util";
 import { ParamsDescriptionType } from "./model/types";
 
 const StyledParametersPanel = styled.div`

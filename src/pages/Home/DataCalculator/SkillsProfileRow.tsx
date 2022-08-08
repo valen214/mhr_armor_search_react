@@ -13,9 +13,9 @@ import { DEFAULT_CALCULATOR, SkillsProfile } from "../../../lib/search_algo/calc
 import { useStrings } from "../../../lang/useStrings";
 import { translateSkills } from "../../../lang/translateSkills";
 import { useStatProfiles } from "./useProfiles";
-import PromiseChild from "mylib/src/PromiseChild";
+import PromiseChild from "mylib/PromiseChild";
 import { ParamsContext } from "./DataCaculatorScreen";
-import FullPageElement from "mylib/src/FullPageElement";
+import FullPageElement from "mylib/FullPageElement";
 import { Button } from "mylib";
 import { removeSkillsProfile } from "../../../lib/search_algo";
 

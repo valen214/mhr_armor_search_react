@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import strings, { notifyLoaded } from '../../lang';
 
-import { Button } from 'mylib/Button';
+import Button from 'mylib/Button';
 import DataCaculatorScreen from './DataCalculator/DataCaculatorScreen';
 
 import "./Home.scss";
