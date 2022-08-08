@@ -2,6 +2,10 @@
 import type { CSSProperties } from "react";
 import type { ParamsType } from "../../../../lib/search_algo/types"
 
+/*
+https://betterprogramming.pub/runtime-data-
+validation-from-typescript-interfaces-1001ad22e775
+*/
 
 export type ParamsDescriptionType<Default = false> = (
   Default extends true ? {} : { id: string }

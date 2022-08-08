@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@mui/material/Button";
+import Modal from '@mui/material/Modal';
 
 
-import FullPageElement from "mylib/FullPageElement";
 import { ParamsType } from "../../../lib/search_algo/types";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
@@ -74,8 +74,8 @@ export default function CalculatorExportPrompt({
   }
 
   return (
-    <FullPageElement
-      open={open}
+    <Modal
+      open={!!open}
       onClose={onClose}
     >
       <StyledExportPromptBase>
@@ -174,7 +174,7 @@ export default function CalculatorExportPrompt({
         />
 
       </StyledExportPromptBase>
-    </FullPageElement>
+    </Modal>
   )
 }
 

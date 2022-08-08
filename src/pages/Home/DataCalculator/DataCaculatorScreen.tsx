@@ -16,7 +16,7 @@ import { Button } from "mylib";
 import { DEFAULT_CALCULATOR } from "../../../lib/search_algo";
 import type { ParamsType } from "../../../lib/search_algo/types";
 import ParametersPanel from "./ParametersPanel";
-import FullPageElement from "mylib/FullPageElement";
+import Modal from '@mui/material/Modal';
 import { style } from "mylib/util/react_util";
 import CalculatorExportPrompt from "./CalculatorExportPrompt";
 import AddColumnPrompt from "./EditColumnPrompt";
@@ -60,6 +60,12 @@ const StyledSkillsProfilesHeaderCell = styled.div<{
 }>`
   width: ${props => props.width}px;
   flex-shrink: 0;
+
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
 `;
 const StyledSkillsProfile = styled.div``;
 

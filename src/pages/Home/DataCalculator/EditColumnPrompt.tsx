@@ -5,12 +5,12 @@ import styled from "styled-components";
 
 import { Button } from "@mui/material";
 import TextField from '@mui/material/TextField';
+import Modal from '@mui/material/Modal';
 
 import Editor, {
   loader
 } from '@monaco-editor/react';
 
-import FullPageElement from "mylib/FullPageElement";
 import { style } from "mylib/util/react_util";
 import { DEFAULT_CALCULATOR } from "../../../lib/search_algo";
 import { ColumnDescriptionType } from "./DataCaculatorScreen";
@@ -144,9 +144,9 @@ export default function EditColumnPrompt({
   }, [ mounted, open, edit, col ])
 
   return (
-    <FullPageElement
-      open={open}
-      onClose={onClose}
+    <Modal
+      open={!!open}
+      onClose={() => onClose()}
     >
       <StyledEditColumnPromptBase>
         <StyledPromptTopPanel>
@@ -210,7 +210,7 @@ export default function EditColumnPrompt({
           />}
         </StyledEditorContainer>
       </StyledEditColumnPromptBase>
-    </FullPageElement>
+    </Modal>
   )
 }
 

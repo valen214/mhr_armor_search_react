@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
+import Modal from '@mui/material/Modal';
 
 import { DEFAULT_CALCULATOR, SkillsProfile } from "../../../lib/search_algo/calculator";
 import { useStrings } from "../../../lang/useStrings";
@@ -15,7 +16,6 @@ import { translateSkills } from "../../../lang/translateSkills";
 import { useStatProfiles } from "./useProfiles";
 import PromiseChild from "mylib/PromiseChild";
 import { ParamsContext } from "./DataCaculatorScreen";
-import FullPageElement from "mylib/FullPageElement";
 import { Button } from "mylib";
 import { removeSkillsProfile } from "../../../lib/search_algo";
 
@@ -67,10 +67,11 @@ export default function SkillsProfileRow({
   // rendered 4 times
   return (
     <StyledSkillsProfileRow>
-      <FullPageElement
-        flexCentered={false}
+      <Modal
         open={!!openRowAction}
-        backgroundColor="rgba(0, 0, 0, 0.05)"
+        sx={{
+          "backgroundColor": "rgba(0, 0, 0, 0.05)"
+        }}
         onClose={() => setOpenRowAction(false)}
       >
         <div style={{
@@ -92,7 +93,7 @@ export default function SkillsProfileRow({
             Delete Profile
           </Button>
         </div>
-      </FullPageElement>
+      </Modal>
       <StyledSkillsProfilesRowCell
         style={{
           "cursor": "pointer",

@@ -8,6 +8,7 @@ import { Skills } from "../../../../lib/search_algo"
 import type { ParamsType, WorkerArgType } from "../../../../lib/search_algo/types";
 
 import { ParamsDescriptionType } from "./types";
+import { DEFAULT_PARAMS_DESCRIPTIONS } from "./default_values";
 
 
 
@@ -118,10 +119,11 @@ export class DataDescription<R>
 
 class SubscriptableDataClass<T extends { id: string }>
 extends (EventEmitter as new () => TypedEmitter<{
-  "profiles change": () => void
-  "stat profiles change": () => void
+  "change": () => void
 
-  "stat profile update": (id: string) => void
+  "add": (id: string) => void
+  "update": (id: string) => void
+  "remove": (id: string) => void
 }>)
 {
   private id_prefix = crypto.randomUUID?.() || randomstring(16);
@@ -130,51 +132,82 @@ extends (EventEmitter as new () => TypedEmitter<{
 
   private store: Map<string, T> = new Map();
 
-  constructor(arr?: Array<Omit<T, "id"> & { id?: string }>){
-    super();
-    
+  private _addAll(arr?: Array<Omit<T, "id"> & { id?: string }>){
     if(arr){
+      for(let obj of arr){
+        let out = Object.assign({}, obj, {
+          id: obj.id ?? this.genId()
+        }) as T; // https://github.com/microsoft/TypeScript/issues/35858
 
+        this.store.set(out.id, out);
+      }
     }
   }
 
+  constructor(arr?: Array<Omit<T, "id"> & { id?: string }>){
+    super();
+
+    this._addAll(arr);
+    for(let id of this.store.keys()){
+      this.emit("add", id);
+    }
+  }
+
+  get(): IterableIterator<string>;
+  get(id: string): T | undefined;
   get(id?: string){
     if(id){
       return this.store.get(id);
     } else{
-
+      return this.store.keys();
     }
   }
 
   set(obj: T){
+    this.store.set(obj.id, obj);
+    this.emit("update", obj.id);
+  }
+  add(obj: Omit<T, "id"> & { id?: string }){
+    let a: T = {
+      ...obj,
+      id: obj.id ?? this.genId(),
+    } as T;
+    this.store.set(a.id, a);
+    this.emit("add", a.id);
+  }
+  delete(arg: string | T){
+    let id = typeof arg === "string" ? arg : arg.id;
+    this.emit("remove", id);
+    this.store.delete(id);
+  }
 
+  reset(arr?: Array<Omit<T, "id"> & { id?: string }>){
+    for(let id of this.store.keys()){
+      this.delete(id);
+    }
+
+    if(this.store.size){
+      console.error("not all entries are removed");
+      this.store.clear();
+    }
+
+    if(arr){
+      for(let obj of arr){
+        this.add(obj);
+      }
+    }
   }
 }
 
 
 
-export class MHRCalculatorApp
+export class MHRCalculator
 {
-  private _params_desc: Map<string, ParamsDescriptionType> = new Map();
+  private _params_desc = new SubscriptableDataClass<ParamsDescriptionType> ();
   get params_desc(){ return this._params_desc; }
 
   constructor(){
 
-  }
-
-
-  getParamsDescriptions(): string[] {
-    
-    return []
-  }
-  addParamsDescription(){
-
-  }
-  setParamsDescriptions(
-    desc: Array<ParamsDescriptionType>,
-    keepId?: boolean
-  ){
-    
   }
 
   getDataDescriptions(){
@@ -192,3 +225,7 @@ export class MHRCalculatorApp
 
   }
 }
+
+const myMHRCalculator = new MHRCalculator();
+myMHRCalculator.params_desc.reset(DEFAULT_PARAMS_DESCRIPTIONS);
+export default myMHRCalculator;

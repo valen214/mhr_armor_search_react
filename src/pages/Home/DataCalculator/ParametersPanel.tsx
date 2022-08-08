@@ -1,18 +1,21 @@
 
 
-import React, { ChangeEvent, CSSProperties, ReactComponentElement, ReactNode, useContext, useState } from "react"
+import React, { ChangeEvent, CSSProperties, ReactComponentElement, ReactElement, ReactNode, useContext, useEffect, useRef, useState } from "react"
 import styled from "styled-components";
 import Collapse from '@mui/material/Collapse';
 import TextField from '@mui/material/TextField';
 
+import Modal from '@mui/material/Modal';
+// '@mui/base/ModalUnstyled';
 
 import { ParamsContext } from "./DataCaculatorScreen"
 import type { ParamsType } from "../../../lib/search_algo/types";
 import { Button, FormControl, FormControlLabel, InputLabel, MenuItem, Select, SelectChangeEvent, Switch } from "@mui/material";
 import { useStrings } from "../../../lang/useStrings";
-import FullPageElement from "mylib/FullPageElement";
 import { style } from "mylib/util/react_util";
 import { ParamsDescriptionType } from "./model/types";
+import useOrderedParamsDescriptions from "./hooks/useOrderedParamsDescriptions";
+import myMHRCalculator from "./model/App";
 
 const StyledParametersPanel = styled.div`
   flex-shrink: 0;
@@ -21,92 +24,31 @@ const StyledParametersPanel = styled.div`
   flex-wrap: wrap;
   padding-bottom: 50px;
 `;
+const StyledEditHoverBackdrop = styled.div<{
+  top: number
+  height: number
+}>`
 
-const PARAMS_PANEL_DESCRIPTION: Array<ParamsDescriptionType<true>> = [
-  {
-    type: "number",
-    text: "Weapon Phy",
-    param: "weapon_phy",
-  }, {
-    type: "number",
-    text: "Weapon Elem",
-    param: "weapon_elem",
-  }, {
-    type: "mul-val-options",
-    text: "Sharpness",
-    params: [ "sharpness_phy", "sharpness_elem" ],
-    defaultIndex: 5,
-    options: [{
-      text: "Red",
-      values: [0.50, 0.25],
-      style: "background: #d92c2c;"
-    }, {
-      text: "Orange",
-      values: [0.75, 0.50],
-      style: "background: #d9662c;"
-    }, {
-      text: "Yellow",
-      values: [1.00, 0.75],
-      style: "background: #d9d12c;"
-    }, {
-      text: "Green",
-      values: [1.05, 1.00],
-      style: "background: #70d92c;"
-    }, {
-      text: "Blue",
-      values: [1.20, 1.0625],
-      style: "background: #2c86d9;"
-    }, {
-      text: "White",
-      values: [1.32, 1.15],
-      style: "background: #ffffff;"
-    }, {
-      text: "Purple",
-      values: [1.39, 1.25],
-      style: "background: #cc99ff;"
-    }]
-  }, {
-    type: "number",
-    text: "motion value (phy)",
-    param: "motion_value_phy",
-  }, {
-    type: "number",
-    text: "absorption (phy)",
-    param: "absorption_phy",
-  }, {
-    type: "number",
-    text: "motion value (elem)",
-    param: "motion_value_elem",
-  }, {
-    type: "number",
-    text: "absorption (elem)",
-    param: "absorption_elem",
-  }, {
-    type: "options",
-    text: "Demondrug",
-    param: "demondrug",
-    default: 0,
-    options: [{
-      text: "None",
-      value: 0,
-    }, {
-      text: "Demondrug",
-      value: 5,
-    }, {
-      text: "Mega Demondrug",
-      value: 7,
-    }]
-  }, {
-    type: "toggle",
-    text: "powercharm",
-    param: "powercharm",
-  }, {
-    type: "toggle",
-    text: "powertalon",
-    param: "powertalon",
+  background: rgba(0, 0, 0, 0.3);
+  pointer-events: all;
+  position: absolute;
+  top: ${props => props.top}px;
+  left: 0;
+  height: ${props => props.height}px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  & span {
+    background: black;
+    padding: 12px;
+    font-size: 35px;
+    font-weight: 1000;
+    color: white;
   }
-]
-
+`
 
 const StyledSharpnessSelect = styled.select`
 
@@ -121,57 +63,6 @@ const StyledSharpnessOption = styled.option<{ background: string }>`
     background-color: ${ props => props.background };
   }
 `
-const SharpnessDescription: [
-  string, [number, number], string
-][] = [
-  [ "#d92c2c", [0.50, 0.25], "Red" ],
-  [ "#d9662c", [0.75, 0.50], "Orange" ],
-  [ "#d9d12c", [1.00, 0.75], "Yellow" ],
-  [ "#70d92c", [1.05, 1.00], "Green" ],
-  [ "#2c86d9", [1.20, 1.0625], "Blue" ],
-  [ "#ffffff", [1.32, 1.15], "White" ],
-  [ "#cc99ff", [1.39, 1.25], "Purple" ],
-]
-function SharpnessSelector(){
-  const [ params, setParams ] = useContext(ParamsContext);
-
-  return (
-    <>
-      <label htmlFor="sharpness">Sharpness</label>
-      <select
-        name="sharpness" id="sharpness"
-        defaultValue={JSON.stringify(["#ffffff", ...[1.32, 1.15]])}
-        onChange={(e) => {
-          let [
-            background, sharpness_phy, sharpness_elem
-          ] = JSON.parse(e.target.value);
-          
-          e.target.style.background = background;
-          setParams({
-            ...params,
-            sharpness_phy,
-            sharpness_elem
-          });
-        }}
-      >
-        {SharpnessDescription.map(([
-          background,
-          value,
-          text
-        ]) => (
-          <StyledSharpnessOption
-            key={text}
-            background={background as string}
-            value={JSON.stringify([background, ...value])}
-          >
-            {text}
-          </StyledSharpnessOption>
-        ))}
-      </select>
-    </>
-  )
-}
-
 
 export default function ParametersPanel({
   open
@@ -180,105 +71,195 @@ export default function ParametersPanel({
 }){
   const [ params, setParams ] = useContext(ParamsContext);
   const strings = useStrings();
+  /*
+  using a more complex structure could make the caching works,
+  but might as well split each cases into their own components
+  */
+  const { descs, setDescs } = useOrderedParamsDescriptions();
+
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const [ selecting, setSelecting ] = useState(false);
+  const [ selected, setSelected ] = useState<string | null>(null);
+  const [ add, setAdd ] = useState(false);
+  useEffect(() => {
+    setSelecting(false);
+    // setAdd(false);
+  }, [ selected ])
+
+  const [ panelRect, setPanelRect ] = useState<number[]>([]);
+  useEffect(() => {
+    let rect = panelRef.current!.getBoundingClientRect();
+
+
+    setPanelRect([
+      rect.top,
+      rect.right,
+      rect.bottom,
+      rect.left,
+    ]);
+  }, [ selecting ])
 
   return (
     <Collapse in={open} style={{
       flexShrink: 0
     }}>
-      <StyledParametersPanel>
-        {PARAMS_PANEL_DESCRIPTION.map(desp => {
+      <StyledParametersPanel ref={panelRef}>
+        <Modal
+          open={selecting}
+          onClose={() => setSelecting(false)}
+          hideBackdrop
+          sx={{
+            "pointerEvents": "none",
+            "background": "rgba(0, 0, 0, 0)",
+          }}
+        >
+          <>
+            <StyledEditHoverBackdrop
+              top={0}
+              height={panelRect[0] || 0}
+              onClick={() => setSelecting(false)}
+            >
+              <span>Click dark area to close</span>
+            </StyledEditHoverBackdrop>
+            <StyledEditHoverBackdrop
+                top={panelRect[2] || 0}
+                height={document.body.clientHeight - (panelRect[2] || 0)}
+              onClick={() => setSelecting(false)}
+            >
+              <span>Click dark area to close</span>
+            </StyledEditHoverBackdrop>
+          </>
+        </Modal>
+        <EditParameterPromptButton
+          selecting={selecting}
+          setSelecting={setSelecting}
+        />
+        {descs.map(id => {
+          let desp = myMHRCalculator.params_desc.get(id);
+          if(!desp) return;
+          
+          let key = JSON.stringify(desp);
+
           switch(desp.type){
           case "number":
             return (
-              <TextField
-                key={desp.text}
-                variant="outlined"
-                label={desp.text}
-                onChange={(e) => {
-                  let value = parseInt(e.target.value);
-                  if(value){
-                    setParams({
-                      ...params,
-                      [desp.param]: value
-                    });
-                  }
-                }}
-              />
+              <OnEditHoverIndicatorWrapper
+                key={key}
+                id={id}
+                selecting={selecting}
+                setSelected={setSelected}
+              >
+                <TextField
+                  variant="outlined"
+                  label={desp.text}
+                  onChange={(e) => {
+                    let value = parseInt(e.target.value);
+                    if(value){
+                      setParams({
+                        ...params,
+                        // @ts-ignore
+                        [desp.param]: value
+                      });
+                    }
+                  }}
+                />
+              </OnEditHoverIndicatorWrapper>
             );
           case "toggle":
             return (
-              <FormControlLabel
-                key={desp.text}
-                sx={{
-                  minWidth: "120px",
-                }}
-                labelPlacement="start"
-                control={
-                  <Switch
-                    checked={params[desp.param]}
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                      let checked = event.target.checked;
-                      setParams({
-                        ...params,
-                        [desp.param]: checked,
-                      });
-                    }}
-                  />
-                }
-                label={desp.text}
-              />
+              <OnEditHoverIndicatorWrapper
+                key={key}
+                id={id}
+                selecting={selecting}
+                setSelected={setSelected}
+              >
+                <FormControlLabel
+                  sx={{
+                    minWidth: "120px",
+                  }}
+                  labelPlacement="start"
+                  control={
+                    <Switch
+                      checked={params[desp.param]}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        let checked = event.target.checked;
+                        setParams({
+                          ...params,
+                          // @ts-ignore
+                          [desp.param]: checked,
+                        });
+                      }}
+                    />
+                  }
+                  label={desp.text}
+                />
+              </OnEditHoverIndicatorWrapper>
             );
           case "options":
             return (
-              <FormControl
-                key={desp.text}
-                sx={{
-                  minWidth: "120px",
-                }} 
+              <OnEditHoverIndicatorWrapper
+                key={key}
+                id={id}
+                selecting={selecting}
+                setSelected={setSelected}
               >
-                <InputLabel>{desp.text}</InputLabel>
-                <Select
-                  label={desp.text}
-                  defaultValue={params[desp.param] || desp.default}
-                  value={params[desp.param] || desp.default}
-                  onChange={(event: SelectChangeEvent) => {
-                    let value = event.target.value;
-                    setParams({
-                      ...params,
-                      [desp.param]: value
-                    })
-                  }}
+                <FormControl
+                  sx={{
+                    minWidth: "120px",
+                  }} 
                 >
-                  {desp.options.map(v => {
-                    let text, value;
-                    if(typeof v === "number"
-                    || typeof v === "string"){
-                      text = value = v;
-                    } else{
-                      text = v.text;
-                      value = v.value;
-                    }
+                  <InputLabel>{desp.text}</InputLabel>
+                  <Select
+                    label={desp.text}
+                    defaultValue={params[desp.param] || desp.default}
+                    value={params[desp.param] || desp.default}
+                    onChange={(event: SelectChangeEvent) => {
+                      let value = event.target.value;
+                      setParams({
+                        ...params,
+                        // @ts-ignore
+                        [desp.param]: value
+                      })
+                    }}
+                  >
+                    {desp.options.map(v => {
+                      let text, value;
+                      if(typeof v === "number"
+                      || typeof v === "string"){
+                        text = value = v;
+                      } else{
+                        text = v.text;
+                        value = v.value;
+                      }
 
-                    return (
-                      <MenuItem
-                        key={text}
-                        value={value}
-                      >
-                        {text}
-                      </MenuItem>
-                    )
-                  })}
-                </Select>
-              </FormControl>
+                      return (
+                        <MenuItem
+                          key={text}
+                          value={value}
+                        >
+                          {text}
+                        </MenuItem>
+                      )
+                    })}
+                  </Select>
+                </FormControl>
+                
+              </OnEditHoverIndicatorWrapper>
             )
           case "mul-val-options":
             return (
-              <MultiValueOption
-                key={desp.text}
-                desp={desp}
-                params={params}
-                setParams={setParams}
-              />
+              <OnEditHoverIndicatorWrapper
+                key={key}
+                id={id}
+                selecting={selecting}
+                setSelected={setSelected}
+              >
+                <MultiValueOption
+                  desp={desp}
+                  params={params}
+                  setParams={setParams}
+                />
+              </OnEditHoverIndicatorWrapper>
             );
           case "other":
             return <desp.component key={desp.text} />
@@ -289,13 +270,111 @@ export default function ParametersPanel({
   )
 }
 
+function EditParameterPrompt({
+  params,
+  setParams,
+  selected, setSelected,
+  add, setAdd,
+}: {
+  params: Partial<ParamsType>
+  setParams: (params: Partial<ParamsType>) => void
+
+  selected?: string
+  setSelected?: (id: string) => void
+
+  add?: boolean
+  setAdd?: (add: boolean) => void
+}){
+
+  return (
+    <Modal open={false}>
+      <div></div>
+    </Modal>
+  )
+}
+/*
+There are two approaches:
+1) get a click map on prompt open (probably do it on columns)
+- cons: couldn't update on resize
+
+2) wrap parameters in another element
+-
+*/
+function EditParameterPromptButton({
+  selecting,
+  setSelecting
+}: {
+  selecting: boolean
+  setSelecting: (selecting: boolean) => void
+}){
+  return (
+    <Button
+      sx={{
+        paddingLeft: "35px",
+        paddingRight: "35px",
+      }}
+      onClick={() => {
+        setSelecting(!selecting)
+      }}
+    >
+      { selecting ? "Cancel" : "Select & Edit Parameter" }
+    </Button>
+  )
+}
+
+const StyledOnEditHoverIndicatorWrapper = styled.div<{
+  selecting?: boolean
+}>`
+  ${props => props.selecting ? (`
+      &:hover {
+        background: rgba(128, 255, 128, 0.3);
+        cursor: pointer;
+
+        & * {
+          pointer-events: none;
+        }
+      }
+    `) : ""
+  }
+`
+function OnEditHoverIndicatorWrapper({
+  id,
+  selecting,
+  setSelected,
+  children,
+}: {
+  id: string
+  selecting: boolean
+  setSelected: (id: string) => void
+
+  children: ReactElement
+}){
+  return (
+    <StyledOnEditHoverIndicatorWrapper
+      selecting={selecting}
+
+      onClick={() => {
+        setSelected(id);
+      }}
+    >
+      {children}
+    </StyledOnEditHoverIndicatorWrapper>
+  )
+
+  // return React.cloneElement(
+  //   React.Children.only(children), {
+  //     ref: childRef
+  //   }
+  // )
+}
+
 
 function MultiValueOption({
   desp,
   params,
   setParams
 }: {
-  desp: typeof PARAMS_PANEL_DESCRIPTION[number] & {
+  desp: ParamsDescriptionType & {
     type: "mul-val-options",
   }
   params: Partial<ParamsType>
@@ -374,9 +453,9 @@ function MultiValueOption({
 
 export function EditParametersPanel(){
   return (
-    <FullPageElement>
-
-    </FullPageElement>
+    <Modal open={false} >
+      <div></div>
+    </Modal>
   )
 }
 EditParametersPanel.Button = function EditParametersPanelButton(){
