@@ -1,3 +1,3 @@
 [submodule "my_common_react_components"]
-	path = lib/mylib
+	path = src/lib/mylib
 	url = https://github.com/valen214/my_common_react_components.git
