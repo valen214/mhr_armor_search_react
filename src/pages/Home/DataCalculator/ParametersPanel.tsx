@@ -126,7 +126,7 @@ export default function ParametersPanel({
   using a more complex structure could make the caching works,
   but might as well split each cases into their own components
   */
-  const { descs, setDescs } = useOrderedParamsDescriptions();
+  const { descs } = useOrderedParamsDescriptions();
 
   const [ openParamsPanel, setOpenParamsPanel ] = useState(true);
 
