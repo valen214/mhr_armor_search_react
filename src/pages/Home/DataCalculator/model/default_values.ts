@@ -11,6 +11,10 @@ export const DEFAULT_PARAMS_DESCRIPTIONS: ParamsDescriptionType<true>[] = [
     text: "Weapon Elem",
     param: "weapon_elem",
   }, {
+    type: "number",
+    text: "Weapon Crit",
+    param: "weapon_crit",
+  }, {
     type: "mul-val-options",
     text: "Sharpness",
     params: [ "sharpness_phy", "sharpness_elem" ],

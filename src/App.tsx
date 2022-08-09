@@ -12,8 +12,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="monaco_test" element={<MonacoPage />} />
+        <Route path="/">
+          <Route path="mhr_armor_search_react/">
+            <Route path="" element={<Home />} />
+            <Route path="monaco_test" element={<MonacoPage />} />
+          </Route>
+        </Route>
       </Routes>
     </BrowserRouter>
   );

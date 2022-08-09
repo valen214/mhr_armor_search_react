@@ -239,14 +239,18 @@ export default function ParametersPanel({
                     variant="outlined"
                     label={desp.text}
                     onChange={(e) => {
-                      let value = parseInt(e.target.value);
-                      if(value){
-                        setParams({
-                          ...params,
-                          // @ts-ignore
-                          [desp.param]: value
-                        });
+                      let value: number | string = parseInt(e.target.value);
+                      if(typeof value === "number" && !isNaN(value)){
+                      } else{
+                        value = e.target.value;
                       }
+
+
+                      setParams({
+                        ...params,
+                        // @ts-ignore
+                        [desp.param]: value
+                      });
                     }}
                   />
                 </OnEditHoverIndicatorWrapper>

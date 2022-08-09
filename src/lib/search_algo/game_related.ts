@@ -1,4 +1,5 @@
 import type { ParamsType, Skills, WorkerArgType } from "./types";
+// https://kuroyonhon.com/mhrise/d/dame.php
 
 
 export function crit(arg: WorkerArgType){
@@ -15,6 +16,8 @@ export function crit(arg: WorkerArgType){
     crit += [ 0, 20, 25, 25 ][ skills[117] ] || 0;
     crit += [ 0, 20, 25, 25 ][ skills[125] ] || 0; // 攻勢 ???
   }
+
+  crit += params?.weapon_crit || 0;
 
   return crit;
 }
@@ -84,10 +87,31 @@ export function damage_number_phy(arg: WorkerArgType){
   );
 }
 
+/*
+
+八捨九入(八捨九入(八捨九入(属性値ｘ太刀の練気ゲージｘ
+  属性強化乗算補正＋属性強化加算部分)ｘ弓溜め補正)ｘ属性攻撃力UP旋律)
+ここまでで一定値以上の属性値にならない？
+※属性弾の属性値は八捨九入しない
+
+missing long sword multi, bow multi, HH song multi
+missing round function
+*/
 export function status_elem(arg: WorkerArgType){
   let { skills, params } = arg;
   let elem = params?.["weapon_elem"] || 0;
 
+  let max_elem_lv = 0;
+  for(let i = 13; i <= 17; ++i){
+    if((skills?.[i] || 0) > max_elem_lv){
+      max_elem_lv = skills?.[i]!;
+    }
+  }
+  max_elem_lv = max_elem_lv > 5 ? 5 : max_elem_lv;
+  elem *= [1, 1, 1, 1.05, 1.1, 1.2][max_elem_lv];
+  elem += [0, 2, 3,    4,   4,   4][max_elem_lv];
+
+ 
   return elem;
 }
 export function damage_number_elem(arg: WorkerArgType){

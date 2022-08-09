@@ -15,8 +15,9 @@ const config = {
   output: [
     {
       // dir: "dist",
+      name: "game-related",
       file: 'dist/game-related.js',
-      format: 'module',
+      format: 'esm',
     }, {
       file: 'dist/game-related.min.js',
       format: "esm",

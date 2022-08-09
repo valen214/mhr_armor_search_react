@@ -1,5 +1,6 @@
+// https://kuroyonhon.com/mhrise/d/dame.php
 function crit(arg) {
-    var skills = arg.skills; arg.params;
+    var skills = arg.skills, params = arg.params;
     var crit = 0;
     if (skills) {
         crit += [0, 3, 5, 7, 10, 15][skills[2]] || 0;
@@ -10,6 +11,7 @@ function crit(arg) {
         crit += [0, 20, 25, 25][skills[117]] || 0;
         crit += [0, 20, 25, 25][skills[125]] || 0; // 攻勢 ???
     }
+    crit += (params === null || params === void 0 ? void 0 : params.weapon_crit) || 0;
     return crit;
 }
 function status_phy(_a) {
@@ -79,9 +81,28 @@ function damage_number_phy(arg) {
         motion_value_phy / 100 *
         absorption_phy / 100);
 }
+/*
+
+八捨九入(八捨九入(八捨九入(属性値ｘ太刀の練気ゲージｘ
+  属性強化乗算補正＋属性強化加算部分)ｘ弓溜め補正)ｘ属性攻撃力UP旋律)
+ここまでで一定値以上の属性値にならない？
+※属性弾の属性値は八捨九入しない
+
+missing long sword multi, bow multi, HH song multi
+missing round function
+*/
 function status_elem(arg) {
-    arg.skills; var params = arg.params;
+    var skills = arg.skills, params = arg.params;
     var elem = (params === null || params === void 0 ? void 0 : params["weapon_elem"]) || 0;
+    var max_elem_lv = 0;
+    for (var i = 13; i <= 17; ++i) {
+        if (((skills === null || skills === void 0 ? void 0 : skills[i]) || 0) > max_elem_lv) {
+            max_elem_lv = skills === null || skills === void 0 ? void 0 : skills[i];
+        }
+    }
+    max_elem_lv = max_elem_lv > 5 ? 5 : max_elem_lv;
+    elem *= [1, 1, 1, 1.05, 1.1, 1.2][max_elem_lv];
+    elem += [0, 2, 3, 4, 4, 4][max_elem_lv];
     return elem;
 }
 function damage_number_elem(arg) {

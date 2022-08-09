@@ -4,7 +4,7 @@
 serve:
 	yarn run start
 
-build: src\*.*
+build: src
 	yarn run build
 
 serve_build:

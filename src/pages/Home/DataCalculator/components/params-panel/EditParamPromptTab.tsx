@@ -116,23 +116,47 @@ export function EditParameterPromptTab_Number({
   add?: boolean
   setAdd?: (add: boolean) => void
 }){
+  const [ name, setName ] = useState("");
+  const [ paramName, setParamName ] = useState("param_name");
+  const [ defaultValue, setDefaultValue ] = useState(0);
+
   return (
     <StyledEditParameterPromptTab_Number>
       <TextField
         label="Name"
         variant="outlined" 
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value)
+        }}
       />
       <TextField
         label="Parameter"
         variant="outlined" 
+        value={paramName}
+        onChange={(e) => {
+          setParamName(e.target.value)
+        }}
       />
       <TextField
         label="Default Value"
         variant="outlined" 
+        value={defaultValue}
+        onChange={(e) => {
+          setDefaultValue(parseInt(e.target.value))
+        }}
       />
       <EditParameterPromptTabBottomBar
         onConfirm={() => {
+          let obj: ParamsDescriptionType<true>  = {
+            type: "number",
+            text: name,
+            param: paramName
+          };
 
+          if(add){
+            myMHRCalculator.params_desc.add(obj)
+          }
         }}
         setSelected={setSelected}
         setAdd={setAdd}

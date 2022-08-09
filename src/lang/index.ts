@@ -3,7 +3,8 @@ import LocalizedStrings, {
   LocalizedStringsMethods
 } from 'react-localization';
 
-
+import PUBLIC_PATH from "../publicPath";
+console.log(PUBLIC_PATH, process.env.PUBLIC_URL);
 /*
 
 https://game.capcom.com/manual/MHRISE/en/switch/page/9/3

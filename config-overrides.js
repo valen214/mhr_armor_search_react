@@ -17,7 +17,7 @@ into-an-external-dependency-part-1-ae29b4d4e5
 */
 
 
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+// const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const path = require("path");
  
 module.exports = {
@@ -51,9 +51,9 @@ module.exports = {
     //   loader.include = [ loader.include, commonPath ];
     //   return config;
     // },
-    addWebpackPlugin(new MonacoWebpackPlugin({
-      languages: [ "typescript", "javascript" ]
-    })),
+    // addWebpackPlugin(new MonacoWebpackPlugin({
+    //   languages: [ "typescript", "javascript" ]
+    // })),
     babelInclude([
       path.resolve("src"),
       path.resolve("src/lib/mylib/src"),
