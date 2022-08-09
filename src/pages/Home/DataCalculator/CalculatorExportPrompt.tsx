@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import styled from "styled-components";
 
@@ -12,6 +12,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { DEFAULT_CALCULATOR } from "../../../lib/search_algo";
 import { Snackbar } from "@mui/material";
+import myMHRCalculator from "./model/App";
 
 
 const StyledExportPromptBase = styled.div`
@@ -45,14 +46,19 @@ export default function CalculatorExportPrompt({
   }, [ params, cols ]);
 
   useEffect(() => {
+
+    console.log(textAreaRef.current);
     if(!textAreaRef.current) return;
     if(!open) return;
     textAreaRef.current.value = JSON.stringify({
       params,
       cols,
       calculator: DEFAULT_CALCULATOR.export(),
+      params_desc: myMHRCalculator.params_desc.doExport(),
     })
   }, [ exportJson, open ]);
+
+  console.log(open);
 
   const [ {
     open: openSnackBar,
@@ -77,6 +83,7 @@ export default function CalculatorExportPrompt({
     <Modal
       open={!!open}
       onClose={onClose}
+      disablePortal
     >
       <StyledExportPromptBase>
         <Snackbar
@@ -110,6 +117,9 @@ export default function CalculatorExportPrompt({
 
               let inCalculator = imported.calculator;
               DEFAULT_CALCULATOR.importFrom(inCalculator);
+
+              let in_params_desc = imported.params_desc;
+              myMHRCalculator.params_desc.reset(in_params_desc);
 
               // onClose?.()
             } catch(e){

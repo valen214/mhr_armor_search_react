@@ -197,6 +197,11 @@ extends (EventEmitter as new () => TypedEmitter<{
       }
     }
   }
+
+  
+  doExport(){
+    return [ ...this.store.values() ];
+  }
 }
 
 

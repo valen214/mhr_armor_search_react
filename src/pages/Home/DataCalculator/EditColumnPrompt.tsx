@@ -27,7 +27,7 @@ position: relative;
 `;
 const StyledEditorContainer = styled.div`
   width: 50vw;
-  height: 50vh;
+  height: 70vh;
   background: white;
   position: relative;
   display: flex;
@@ -40,6 +40,9 @@ const DEFAULT_FUNC_SRC = `
  * @param {WorkerArgType} arg
  * @param {Skills} arg.skills
  * @param {ParamsType} arg.params
+ * 
+ * don't put anything (other than comments) before function func(),
+ * you can otherwise put anything after or inside func()
  */
 function func({
   skills,

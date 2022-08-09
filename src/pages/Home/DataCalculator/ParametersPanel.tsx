@@ -10,20 +10,71 @@ import Modal from '@mui/material/Modal';
 
 import { ParamsContext } from "./DataCaculatorScreen"
 import type { ParamsType } from "../../../lib/search_algo/types";
-import { Button, FormControl, FormControlLabel, InputLabel, MenuItem, Select, SelectChangeEvent, Switch } from "@mui/material";
+import {
+  Box, Button, FormControl, FormControlLabel, InputLabel, MenuItem,
+  Select, SelectChangeEvent, Switch, Tab, Tabs
+} from "@mui/material";
 import { useStrings } from "../../../lang/useStrings";
 import { style } from "mylib/util/react_util";
 import { ParamsDescriptionType } from "./model/types";
 import useOrderedParamsDescriptions from "./hooks/useOrderedParamsDescriptions";
 import myMHRCalculator from "./model/App";
+import {
+  EditParameterPromptTab,
+  EditParameterPromptTab_Number,
+  EditParameterPromptTab_Toggle,
+} from "./components/params-panel/EditParamPromptTab";
 
-const StyledParametersPanel = styled.div`
+const StyledParametersPanel = styled.div<{
+  collapse?: boolean
+}>`
   flex-shrink: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 8px;
+  padding-bottom: 50px;
+
+  ${props => {
+    if(props.collapse){
+      console.log(props.ref);
+      return `
+        position: relative;
+        top: 0;
+        background: white;
+      `;
+    }
+    return "";
+  }}
+
+  display: flex;
+  flex-direction: row;
+`;
+const StyledParamButton = styled(Button)`
+
+  & {
+    padding: 50px;
+  }
+
+`;
+const StyledParamButtonsPanel = styled.div`
+  flex-shrink: 0;
+
+  width: 200px;
+
+  display: flex;
+  flex-direction: column;
+
+  ${StyledParamButton} {
+    padding: 5px 15px;
+    height: 33.33%;
+  }
+`
+
+const StyledParamsContainer = styled.div`
+  flex-expand: 1;
+
   display: flex;
   flex-wrap: wrap;
-  padding-bottom: 50px;
-`;
+`
 const StyledEditHoverBackdrop = styled.div<{
   top: number
   height: number
@@ -77,14 +128,18 @@ export default function ParametersPanel({
   */
   const { descs, setDescs } = useOrderedParamsDescriptions();
 
+  const [ openParamsPanel, setOpenParamsPanel ] = useState(true);
+
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const collapseButtonRef = useRef<HTMLButtonElement | null>(null);
+
   const [ selecting, setSelecting ] = useState(false);
-  const [ selected, setSelected ] = useState<string | null>(null);
+  const [ selected, setSelected ] = useState<string>("");
   const [ add, setAdd ] = useState(false);
   useEffect(() => {
     setSelecting(false);
     // setAdd(false);
-  }, [ selected ])
+  }, [ selected, add ])
 
   const [ panelRect, setPanelRect ] = useState<number[]>([]);
   useEffect(() => {
@@ -100,10 +155,19 @@ export default function ParametersPanel({
   }, [ selecting ])
 
   return (
-    <Collapse in={open} style={{
-      flexShrink: 0
-    }}>
-      <StyledParametersPanel ref={panelRef}>
+    <Collapse
+      in={openParamsPanel}
+      collapsedSize={collapseButtonRef.current ? (
+        (collapseButtonRef.current.clientHeight + 15) + "px"
+      ) : "40px"}
+      style={{
+        flexShrink: 0
+      }}
+    >
+      <StyledParametersPanel
+        collapse={!openParamsPanel}
+        ref={panelRef}
+      >
         <Modal
           open={selecting}
           onClose={() => setSelecting(false)}
@@ -130,146 +194,189 @@ export default function ParametersPanel({
             </StyledEditHoverBackdrop>
           </>
         </Modal>
-        <EditParameterPromptButton
-          selecting={selecting}
-          setSelecting={setSelecting}
+        <EditParameterPrompt
+          params={params}
+          setParams={setParams}
+          selected={selected}
+          setSelected={setSelected}
+          add={add}
+          setAdd={setAdd}
         />
-        {descs.map(id => {
-          let desp = myMHRCalculator.params_desc.get(id);
-          if(!desp) return;
-          
-          let key = JSON.stringify(desp);
+        <StyledParamButtonsPanel>
+          <StyledParamButton ref={collapseButtonRef}
+          onClick={() => {
+            setOpenParamsPanel(!openParamsPanel);
+          }}>
+            { openParamsPanel ? "Collapse" : "Expand" }
+          </StyledParamButton>
+          <EditParameterPromptButton
+            selecting={selecting}
+            setSelecting={setSelecting}
+          />
+          <StyledParamButton onClick={() => {
+            setSelecting(false);
+            setAdd(true);
+          }}>
+            Add Parameter
+          </StyledParamButton>
 
-          switch(desp.type){
-          case "number":
-            return (
-              <OnEditHoverIndicatorWrapper
-                key={key}
-                id={id}
-                selecting={selecting}
-                setSelected={setSelected}
-              >
-                <TextField
-                  variant="outlined"
-                  label={desp.text}
-                  onChange={(e) => {
-                    let value = parseInt(e.target.value);
-                    if(value){
-                      setParams({
-                        ...params,
-                        // @ts-ignore
-                        [desp.param]: value
-                      });
-                    }
-                  }}
-                />
-              </OnEditHoverIndicatorWrapper>
-            );
-          case "toggle":
-            return (
-              <OnEditHoverIndicatorWrapper
-                key={key}
-                id={id}
-                selecting={selecting}
-                setSelected={setSelected}
-              >
-                <FormControlLabel
-                  sx={{
-                    minWidth: "120px",
-                  }}
-                  labelPlacement="start"
-                  control={
-                    <Switch
-                      checked={params[desp.param]}
-                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                        let checked = event.target.checked;
+        </StyledParamButtonsPanel>
+        <StyledParamsContainer>
+          {descs.map(id => {
+            let desp = myMHRCalculator.params_desc.get(id);
+            if(!desp) return;
+            
+            let key = JSON.stringify(desp);
+
+            switch(desp.type){
+            case "number":
+              return (
+                <OnEditHoverIndicatorWrapper
+                  key={key}
+                  id={id}
+                  selecting={selecting}
+                  setSelected={setSelected}
+                >
+                  <TextField
+                    variant="outlined"
+                    label={desp.text}
+                    onChange={(e) => {
+                      let value = parseInt(e.target.value);
+                      if(value){
                         setParams({
                           ...params,
                           // @ts-ignore
-                          [desp.param]: checked,
+                          [desp.param]: value
                         });
-                      }}
-                    />
-                  }
-                  label={desp.text}
-                />
-              </OnEditHoverIndicatorWrapper>
-            );
-          case "options":
-            return (
-              <OnEditHoverIndicatorWrapper
-                key={key}
-                id={id}
-                selecting={selecting}
-                setSelected={setSelected}
-              >
-                <FormControl
-                  sx={{
-                    minWidth: "120px",
-                  }} 
-                >
-                  <InputLabel>{desp.text}</InputLabel>
-                  <Select
-                    label={desp.text}
-                    defaultValue={params[desp.param] || desp.default}
-                    value={params[desp.param] || desp.default}
-                    onChange={(event: SelectChangeEvent) => {
-                      let value = event.target.value;
-                      setParams({
-                        ...params,
-                        // @ts-ignore
-                        [desp.param]: value
-                      })
-                    }}
-                  >
-                    {desp.options.map(v => {
-                      let text, value;
-                      if(typeof v === "number"
-                      || typeof v === "string"){
-                        text = value = v;
-                      } else{
-                        text = v.text;
-                        value = v.value;
                       }
+                    }}
+                  />
+                </OnEditHoverIndicatorWrapper>
+              );
+            case "toggle":
+              return (
+                <OnEditHoverIndicatorWrapper
+                  key={key}
+                  id={id}
+                  selecting={selecting}
+                  setSelected={setSelected}
+                >
+                  <FormControlLabel
+                    sx={{
+                      minWidth: "120px",
+                    }}
+                    labelPlacement="start"
+                    control={
+                      <Switch
+                        checked={params[desp.param]}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          let checked = event.target.checked;
+                          setParams({
+                            ...params,
+                            // @ts-ignore
+                            [desp.param]: checked,
+                          });
+                        }}
+                      />
+                    }
+                    label={desp.text}
+                  />
+                </OnEditHoverIndicatorWrapper>
+              );
+            case "options":
+              return (
+                <OnEditHoverIndicatorWrapper
+                  key={key}
+                  id={id}
+                  selecting={selecting}
+                  setSelected={setSelected}
+                >
+                  <FormControl
+                    sx={{
+                      minWidth: "120px",
+                    }} 
+                  >
+                    <InputLabel>{desp.text}</InputLabel>
+                    <Select
+                      label={desp.text}
+                      defaultValue={params[desp.param] || desp.default}
+                      value={params[desp.param] || desp.default}
+                      onChange={(event: SelectChangeEvent) => {
+                        let value = event.target.value;
+                        setParams({
+                          ...params,
+                          // @ts-ignore
+                          [desp.param]: value
+                        })
+                      }}
+                    >
+                      {desp.options.map(v => {
+                        let text, value;
+                        if(typeof v === "number"
+                        || typeof v === "string"){
+                          text = value = v;
+                        } else{
+                          text = v.text;
+                          value = v.value;
+                        }
 
-                      return (
-                        <MenuItem
-                          key={text}
-                          value={value}
-                        >
-                          {text}
-                        </MenuItem>
-                      )
-                    })}
-                  </Select>
-                </FormControl>
-                
-              </OnEditHoverIndicatorWrapper>
-            )
-          case "mul-val-options":
-            return (
-              <OnEditHoverIndicatorWrapper
-                key={key}
-                id={id}
-                selecting={selecting}
-                setSelected={setSelected}
-              >
-                <MultiValueOption
-                  desp={desp}
-                  params={params}
-                  setParams={setParams}
-                />
-              </OnEditHoverIndicatorWrapper>
-            );
-          case "other":
-            return <desp.component key={desp.text} />
-          }
-        })}
+                        return (
+                          <MenuItem
+                            key={text}
+                            value={value}
+                          >
+                            {text}
+                          </MenuItem>
+                        )
+                      })}
+                    </Select>
+                  </FormControl>
+                  
+                </OnEditHoverIndicatorWrapper>
+              )
+            case "mul-val-options":
+              return (
+                <OnEditHoverIndicatorWrapper
+                  key={key}
+                  id={id}
+                  selecting={selecting}
+                  setSelected={setSelected}
+                >
+                  <MultiValueOption
+                    desp={desp}
+                    params={params}
+                    setParams={setParams}
+                  />
+                </OnEditHoverIndicatorWrapper>
+              );
+            case "other":
+              return <desp.component key={desp.text} />
+            }
+          })}
+        
+
+        </StyledParamsContainer>
       </StyledParametersPanel>
     </Collapse>
   )
 }
 
+const StyledEditParamPromptContainer = styled.div`
+  height: 70vh;
+  width: 50vw;
+  background: white;
+
+  display: flex;
+  flex-direction: column;
+
+  & > div:first-child { // tab bar
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    margin-bottom: 15px;
+    // height: 80px;
+
+    flex: 0 0;
+  }
+`
 function EditParameterPrompt({
   params,
   setParams,
@@ -279,16 +386,70 @@ function EditParameterPrompt({
   params: Partial<ParamsType>
   setParams: (params: Partial<ParamsType>) => void
 
-  selected?: string
+  selected: string
   setSelected?: (id: string) => void
 
   add?: boolean
   setAdd?: (add: boolean) => void
 }){
+  let selectedParam = selected ? myMHRCalculator.params_desc.get(selected) : null;
+
+  const [ tab, setTab ] = useState(() =>
+    selectedParam ? [
+      "number", "toggle", "options", "mul-val-options"
+    ].indexOf(selectedParam.type) : 0
+  );
+  const handleChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ) => {
+    setTab(newValue);
+  };
+
+  let props = { 
+    selected, setSelected,
+    add, setAdd
+  }
 
   return (
-    <Modal open={false}>
-      <div></div>
+    <Modal
+      open={!!(add || selected)}
+      onClose={() => {
+        setSelected?.("");
+        setAdd?.(false);
+      }}
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <StyledEditParamPromptContainer>
+        <div>
+          <Tabs value={tab} onChange={handleChange}>
+            <Tab
+              label="Number"
+              disabled={!add && selectedParam?.type !== "number"}
+            />
+            <Tab
+              label="Toggle"
+              disabled={!add && selectedParam?.type !== "toggle"}
+            />
+            <Tab
+              label="Options"
+              disabled={!add && selectedParam?.type !== "options"}
+            />
+            <Tab
+              label="Options"
+              disabled={!add && selectedParam?.type !== "mul-val-options"}
+            />
+          </Tabs>
+        </div>
+        <EditParameterPromptTab value={tab} index={0} { ...props } />
+        <EditParameterPromptTab value={tab} index={1} { ...props } />
+        <EditParameterPromptTab value={tab} index={2} { ...props } />
+        <EditParameterPromptTab value={tab} index={3} { ...props } />
+      </StyledEditParamPromptContainer>
     </Modal>
   )
 }
@@ -308,17 +469,15 @@ function EditParameterPromptButton({
   setSelecting: (selecting: boolean) => void
 }){
   return (
-    <Button
+    <StyledParamButton
       sx={{
-        paddingLeft: "35px",
-        paddingRight: "35px",
       }}
       onClick={() => {
         setSelecting(!selecting)
       }}
     >
       { selecting ? "Cancel" : "Select & Edit Parameter" }
-    </Button>
+    </StyledParamButton>
   )
 }
 
@@ -354,7 +513,9 @@ function OnEditHoverIndicatorWrapper({
       selecting={selecting}
 
       onClick={() => {
-        setSelected(id);
+        if(selecting){
+          setSelected(id);
+        }
       }}
     >
       {children}

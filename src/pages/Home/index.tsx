@@ -33,20 +33,34 @@ export default function Home() {
   return (
     <div className="App">
       <header className="App-header">
-        <Button
+        <div
+          className="right"
           style={{
-            float: "right",
-            maringLeft: "auto",
-          }}
-          onClick={() => {
-            strings.setLanguage(
-              strings.getLanguage() === "en" ? 
-              "zh" : "en");
-            notifyLoaded();
+            alignSelf: "flex-end",
+            marginLeft: "auto",
           }}
         >
-          <span className="material-icons">language</span>
-        </Button>
+          <Button
+            onClick={() => {
+            }}
+          >
+            Help
+          </Button>
+          <Button
+            style={{
+              alignSelf: "flex-end",
+              maringLeft: "auto",
+            }}
+            onClick={() => {
+              strings.setLanguage(
+                strings.getLanguage() === "en" ? 
+                "zh" : "en");
+              notifyLoaded();
+            }}
+          >
+            <span className="material-icons">language</span>
+          </Button>
+        </div>
       </header>
       <div className="tab-bar">
         <Button

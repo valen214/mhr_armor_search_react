@@ -7,8 +7,8 @@ https://betterprogramming.pub/runtime-data-
 validation-from-typescript-interfaces-1001ad22e775
 */
 
-export type ParamsDescriptionType<Default = false> = (
-  Default extends true ? {} : { id: string }
+export type ParamsDescriptionType<noID = false> = (
+  noID extends true ? {} : { id: string }
 ) & {
   width?: number
 } & ({
@@ -31,6 +31,13 @@ export type ParamsDescriptionType<Default = false> = (
     default?: boolean
   }>
 } | {
+  /*
+  about having different params for each options
+  vs same set of params for all options
+
+  overriding default params doesn't reset
+  the value on choosing other option
+  */
   type: "mul-val-options",
   text: string,
   params: Array<keyof ParamsType | string>,

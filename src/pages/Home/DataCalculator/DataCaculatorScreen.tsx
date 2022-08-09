@@ -160,7 +160,6 @@ export default function DataCaculatorScreen(){
     console.log("statProfiles update, added:", added);
   }, [ statProfiles ])
 
-  const [ openParamsPanel, setOpenParamsPanel ] = useState(true);
   
 
   return (
@@ -168,13 +167,24 @@ export default function DataCaculatorScreen(){
       <ParamsContext.Provider value={[ params, setParams ]}>
 
         <StyledDataCalcScreenRoot>
-          <StyledTopBar>
-            <Button onClick={() => {
-              setOpenParamsPanel(!openParamsPanel);
-              console.log("???"); 
-            }}>{ openParamsPanel ? "Collapse" : "Open"} Parameters</Button>
-            <Button>Import Skills</Button>
+          <ParametersPanel />
+          <SkillsProfilesHeader
+            cols={cols} 
+            //@ts-ignore
+            setCols={setCols}
+          />
+          <StyledSkillsProfilesContainer>
+            {skillsProfiles.map((prof, i) => (
+              <SkillsProfileRow
+                key={prof.id}
+                profile={prof}
+                cols={cols}
+              />
+            ))}
+          </StyledSkillsProfilesContainer>
+          <StyledBottomBar>
             <AddColumnPrompt.Button />
+            <Button>Import Skills</Button>
             <Button onClick={() => {
               for(let prof of
                 DEFAULT_CALCULATOR.stat_profiles.values()
@@ -192,24 +202,6 @@ export default function DataCaculatorScreen(){
               setParams={setParams}
               setCols={setCols}
             />
-          </StyledTopBar>
-          <ParametersPanel open={openParamsPanel}/>
-          <SkillsProfilesHeader
-            cols={cols} 
-            //@ts-ignore
-            setCols={setCols}
-          />
-          <StyledSkillsProfilesContainer>
-            {skillsProfiles.map((prof, i) => (
-              <SkillsProfileRow
-                key={prof.id}
-                profile={prof}
-                cols={cols}
-              />
-            ))}
-          </StyledSkillsProfilesContainer>
-          <StyledBottomBar>
-            BOTTOM BAR
           </StyledBottomBar>
         </StyledDataCalcScreenRoot>
       </ParamsContext.Provider>
