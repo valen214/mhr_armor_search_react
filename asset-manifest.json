@@ -1,17 +1,15 @@
 {
   "files": {
     "main.css": "/mhr_armor_search_react/static/css/main.a6ddf993.css",
-    "main.js": "/mhr_armor_search_react/static/js/main.15777f66.js",
+    "main.js": "/mhr_armor_search_react/static/js/main.c53ea803.js",
     "static/js/651.c5d681ca.chunk.js": "/mhr_armor_search_react/static/js/651.c5d681ca.chunk.js",
-    "ts.worker.js": "/mhr_armor_search_react/ts.worker.js",
-    "editor.worker.js": "/mhr_armor_search_react/editor.worker.js",
     "index.html": "/mhr_armor_search_react/index.html",
     "main.a6ddf993.css.map": "/mhr_armor_search_react/static/css/main.a6ddf993.css.map",
-    "main.15777f66.js.map": "/mhr_armor_search_react/static/js/main.15777f66.js.map",
+    "main.c53ea803.js.map": "/mhr_armor_search_react/static/js/main.c53ea803.js.map",
     "651.c5d681ca.chunk.js.map": "/mhr_armor_search_react/static/js/651.c5d681ca.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.a6ddf993.css",
-    "static/js/main.15777f66.js"
+    "static/js/main.c53ea803.js"
   ]
 }
