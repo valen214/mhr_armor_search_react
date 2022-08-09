@@ -16,6 +16,13 @@ deploy:
 run:
 	yarn run start
 
+try:
+	yarn rollup -c game_related.rollup.config.js
+	copy dist\game-related.js public
+
+try1:
+	yarn webpack -c game_related_webpack.config.js
+	copy dist\game-related.js public
 
 try_monaco:
 	yarn webpack-dev-server --hot \

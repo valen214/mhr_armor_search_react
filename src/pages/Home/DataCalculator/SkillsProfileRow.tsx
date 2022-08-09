@@ -98,7 +98,7 @@ export default function SkillsProfileRow({
         style={{
           "cursor": "pointer",
         }}
-        width={140}
+        width={120}
         onClick={(e) => {
           console.log(e.target);
           let {

@@ -44,10 +44,8 @@ const DEFAULT_FUNC_SRC = `
  * don't put anything (other than comments) before function func(),
  * you can otherwise put anything after or inside func()
  */
-function func({
-  skills,
-  params
-}){
+function func(arg){
+  let { skills, params } = arg;
   
 }
 `;

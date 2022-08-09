@@ -28,6 +28,10 @@ yarn.lock
 
 ####################
 
+# bin
+.rollup.cache
+.rollup.cache/*
+
 .vscode
 
 *.log

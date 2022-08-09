@@ -121,7 +121,8 @@ export default function CalculatorExportPrompt({
               let in_params_desc = imported.params_desc;
               myMHRCalculator.params_desc.reset(in_params_desc);
 
-              // onClose?.()
+              
+              onClose?.()
             } catch(e){
               console.error(e);
             }

@@ -295,15 +295,7 @@ export function EditParameterPromptTab_MultiOptions({
     return [ Array(params.length).fill(0) ]
   });
 
-  const [ page, setPage ] = useState(() => {
-    let page = 1;
-    if(desc){
-      page = [
-        "number", "toggle", "options", "mul-val-options"
-      ].indexOf(desc.type) + 1;
-    }
-    return page >= 1 ? page : 1;
-  });
+  const [ page, setPage ] = useState(1);
 
   const [ name, setName ] = useState(() => desc ? desc.text : "New Parameter");
 
@@ -333,6 +325,7 @@ export function EditParameterPromptTab_MultiOptions({
           if(!values[page-1]){
             values.push([]);
           }
+          console.log(values, page);
 
 
           if(values[page-1].length <= i){

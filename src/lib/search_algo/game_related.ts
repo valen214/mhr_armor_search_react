@@ -16,7 +16,7 @@ export function crit(arg: WorkerArgType){
     crit += [ 0, 20, 25, 25 ][ skills[125] ] || 0; // 攻勢 ???
   }
 
-  return `${crit}`;
+  return crit;
 }
 
 
@@ -65,7 +65,10 @@ export function damage_number_phy(arg: WorkerArgType){
     "absorption_phy",
   ]){
     if(!params?.[req_param]){
-      return "no " + req_param;
+      throw new Error(
+          "damage_number_phy(): " + req_param +
+          "is required but not defined"
+      );
     }
   }
 
@@ -103,6 +106,35 @@ export function damage_number_elem(arg: WorkerArgType){
     absorption_elem / 100
   );
 }
+
+
+export function damage_when_crit(arg: WorkerArgType){
+  let { skills, params } = arg;
+
+  let phy = damage_number_phy(arg);
+  phy *= [ 1.25, 1.30, 1.35, 1.40 ][skills?.[7] || 0]
+
+  let elem = damage_number_elem(arg);
+  elem *= [ 1.00, 1.05, 1.10, 1.15 ][skills?.[11] || 0]
+
+  return phy + elem;
+}
+
+
+
+// might add negative crit;
+export function expected_damage_with_crit(arg: WorkerArgType){
+  let { skills, params } = arg;
+
+
+  let crit_rate = Math.min(crit(arg), 100) / 100.0;
+
+  let when_crit = damage_when_crit(arg);
+  let no_crit = damage_number_phy(arg) + damage_number_elem(arg);
+
+  return (1 - crit_rate) * no_crit + crit_rate * when_crit;
+}
+
 
 export default {
   status_phy,

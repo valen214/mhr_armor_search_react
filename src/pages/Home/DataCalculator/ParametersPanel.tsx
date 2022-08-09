@@ -21,8 +21,6 @@ import useOrderedParamsDescriptions from "./hooks/useOrderedParamsDescriptions";
 import myMHRCalculator from "./model/App";
 import {
   EditParameterPromptTab,
-  EditParameterPromptTab_Number,
-  EditParameterPromptTab_Toggle,
 } from "./components/params-panel/EditParamPromptTab";
 
 const StyledParametersPanel = styled.div<{
@@ -310,7 +308,7 @@ export default function ParametersPanel({
                         })
                       }}
                     >
-                      {desp.options.map(v => {
+                      {desp.options.map((v, i) => {
                         let text, value;
                         if(typeof v === "number"
                         || typeof v === "string"){
@@ -322,7 +320,7 @@ export default function ParametersPanel({
 
                         return (
                           <MenuItem
-                            key={text}
+                            key={i}
                             value={value}
                           >
                             {text}
@@ -405,6 +403,14 @@ function EditParameterPrompt({
   ) => {
     setTab(newValue);
   };
+
+  useEffect(() => {
+    setTab(
+      selectedParam ? [
+        "number", "toggle", "options", "mul-val-options"
+      ].indexOf(selectedParam.type) : 0
+    );
+  }, [ selected, add ])
 
   let props = { 
     selected, setSelected,
@@ -555,7 +561,6 @@ function MultiValueOption({
 
   return (
     <FormControl
-      key={text}
       sx={{
         minWidth: width || "120px",
         ...(s => {
@@ -597,7 +602,7 @@ function MultiValueOption({
 
           return (
             <MenuItem
-              key={text}
+              key={i}
               value={JSON.stringify(values)}
               style={_style}
               data-name={i}
