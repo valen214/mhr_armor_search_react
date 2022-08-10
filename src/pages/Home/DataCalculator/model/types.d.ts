@@ -11,6 +11,7 @@ export type ParamsDescriptionType<noID = false> = (
   noID extends true ? {} : { id: string }
 ) & {
   width?: number
+  notDeletable?: boolean
 } & ({
   type: "number"
   text: string

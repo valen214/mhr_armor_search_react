@@ -22,6 +22,7 @@ import CalculatorExportPrompt from "./CalculatorExportPrompt";
 import AddColumnPrompt from "./EditColumnPrompt";
 import EditColumnPrompt from "./EditColumnPrompt";
 import ImportSkillsPrompt from "./components/ImportSkillsPrompt";
+import { importFromString } from "./model/import_util";
 
 const StyledDataCalcScreenRoot = styled.div`
   height: 100%;
@@ -161,7 +162,43 @@ export default function DataCaculatorScreen(){
     console.log("statProfiles update, added:", added);
   }, [ statProfiles ])
 
-  
+  // IMPORRRRRRRRATATTTTTTTTT: REMOVE SOOOOOOON
+  // import from pastebin
+  useEffect(() => {
+    let urlParams = new URLSearchParams(location.search);
+    let preset = urlParams.get("preset");
+    if(preset){
+      if(!preset.startsWith("http")) return;
+
+      if(!preset.includes("/raw/")){
+        preset = preset.replace(/\/[a-zA-Z0-9]+$/g, match => {
+          return "/raw" + match;
+        })
+      }
+
+      console.log("preset detected! importing...", preset);
+
+
+      fetch(`https://api.allorigins.win/get?url=${
+        encodeURIComponent(preset)
+      }`).then(response => {
+        if (response.ok) return response.json()
+        throw new Error('Network response was not ok.')
+      })
+      .then(data => {
+        console.log(data.contents);
+
+        importFromString(data.contents, {
+          setParams,
+          setCols
+        })
+      }).catch(e => {
+        console.error(
+          "error during default import from query - preset:", e
+        )
+      });
+    }
+  }, [])
 
   return (
     <>

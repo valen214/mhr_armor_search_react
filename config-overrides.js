@@ -66,6 +66,7 @@ module.exports = {
       Object.assign(config.headers, {
         'X-Frame-Options': 'Deny',
         "Cache-Control": 'no-store',
+        "Access-Control-Allow-Origin": "*",
       })
       return config;
     }

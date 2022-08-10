@@ -1,5 +1,5 @@
 import {
-  ReactNode, useRef, useState
+  ReactNode, useContext, useRef, useState
 } from "react";
 
 import styled from "styled-components";
@@ -10,6 +10,8 @@ import TextField from "@mui/material/TextField";
 import Pagination from "@mui/material/Pagination";
 import myMHRCalculator from "../../model/App";
 import { ParamsDescriptionType } from "../../model/types";
+import { DEFAULT_CALCULATOR } from "lib/search_algo";
+import { ParamsContext } from "../../DataCaculatorScreen";
 
 
 
@@ -69,9 +71,11 @@ const StyledEditParameterPromptTabBottomBar = styled.div`
   }
 `
 function EditParameterPromptTabBottomBar({
-  onConfirm, setSelected, setAdd,
+  onConfirm, setSelected, setAdd, notDeletable, onDelete
 }: {
   onConfirm: () => void
+  notDeletable?: boolean
+  onDelete?: () => void
 
   setSelected?: (id: string) => void
 
@@ -85,6 +89,13 @@ function EditParameterPromptTabBottomBar({
       }}>
         Cancel
       </Button>
+      { (!notDeletable) && <Button onClick={() => {
+        onDelete?.()
+        setSelected?.("");
+        setAdd?.(false);
+      }}>
+        Delete This Parameter
+      </Button> }
       <Button
       sx={{ float: "right" }}
       onClick={() => {
@@ -116,9 +127,35 @@ export function EditParameterPromptTab_Number({
   add?: boolean
   setAdd?: (add: boolean) => void
 }){
-  const [ name, setName ] = useState("");
-  const [ paramName, setParamName ] = useState("param_name");
-  const [ defaultValue, setDefaultValue ] = useState(0);
+  const [ params, setParams ] = useContext(ParamsContext);
+
+  const [ desc, setDesc ] = useState<null | (
+    ParamsDescriptionType<false> & {
+      type: "number"
+    }
+  )>(() => {
+    if(selected){
+      let desc = myMHRCalculator.params_desc.get(selected);
+      if(desc?.type === "number"){
+        return desc;
+      }
+    }
+
+    return null;
+  });
+
+  const [ name, setName ] = useState(() => {
+    if(desc){
+      return desc.text;
+    }
+    return "";
+  });
+  const [ paramName, setParamName ] = useState(() => {
+    return desc ? desc.param : "param_name"
+  });
+  const [ defaultValue, setDefaultValue ] = useState(() => {
+    return desc ? params[desc.param] : 0
+  });
 
   return (
     <StyledEditParameterPromptTab_Number>
@@ -156,6 +193,17 @@ export function EditParameterPromptTab_Number({
 
           if(add){
             myMHRCalculator.params_desc.add(obj)
+          }
+        }}
+        notDeletable={!add && desc?.notDeletable}
+        onDelete={() => {
+          if(!add && desc && !desc.notDeletable){
+            myMHRCalculator.params_desc.delete(desc)
+          } else{
+            console.error(
+              "FATAL: attempt to delete not deletable parameter",
+              desc
+            );
           }
         }}
         setSelected={setSelected}
@@ -205,6 +253,17 @@ export function EditParameterPromptTab_Toggle({
         onConfirm={() => {
 
         }}
+        // notDeletable={!add && desc?.notDeletable}
+        // onDelete={() => {
+        //   if(!add && desc && !desc.notDeletable){
+        //     myMHRCalculator.params_desc.delete(desc)
+        //   } else{
+        //     console.error(
+        //       "FATAL: attempt to delete not deletable parameter",
+        //       desc
+        //     );
+        //   }
+        // }}
         setSelected={setSelected}
         setAdd={setAdd}
       />
@@ -251,6 +310,17 @@ export function EditParameterPromptTab_Options({
         onConfirm={() => {
 
         }}
+        // notDeletable={!add && desc?.notDeletable}
+        // onDelete={() => {
+        //   if(!add && desc && !desc.notDeletable){
+        //     myMHRCalculator.params_desc.delete(desc)
+        //   } else{
+        //     console.error(
+        //       "FATAL: attempt to delete not deletable parameter",
+        //       desc
+        //     );
+        //   }
+        // }}
         setSelected={setSelected}
         setAdd={setAdd}
       />
@@ -454,6 +524,17 @@ export function EditParameterPromptTab_MultiOptions({
 
           } else{
             myMHRCalculator.params_desc.add(obj)
+          }
+        }}
+        notDeletable={!add && desc?.notDeletable}
+        onDelete={() => {
+          if(!add && desc && !desc.notDeletable){
+            myMHRCalculator.params_desc.delete(desc)
+          } else{
+            console.error(
+              "FATAL: attempt to delete not deletable parameter",
+              desc
+            );
           }
         }}
         setSelected={setSelected}

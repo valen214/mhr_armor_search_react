@@ -13,6 +13,7 @@ import Checkbox from "@mui/material/Checkbox";
 import { DEFAULT_CALCULATOR } from "../../../lib/search_algo";
 import { Snackbar } from "@mui/material";
 import myMHRCalculator from "./model/App";
+import { importFromString } from "./model/import_util";
 
 
 const StyledExportPromptBase = styled.div`
@@ -107,21 +108,11 @@ export default function CalculatorExportPrompt({
           <Button onClick={() => {
             try{
               if(!textAreaRef.current) return;
-              let imported = JSON.parse(textAreaRef.current.value);
+              importFromString(textAreaRef.current.value, {
+                setParams,
+                setCols
+              });
 
-              let inParams = imported.params;
-              setParams(inParams);
-
-              let inCols = imported.cols;
-              setCols(inCols);
-
-              let inCalculator = imported.calculator;
-              DEFAULT_CALCULATOR.importFrom(inCalculator);
-
-              let in_params_desc = imported.params_desc;
-              myMHRCalculator.params_desc.reset(in_params_desc);
-
-              
               onClose?.()
             } catch(e){
               console.error(e);
