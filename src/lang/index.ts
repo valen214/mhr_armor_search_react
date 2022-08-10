@@ -56,6 +56,8 @@ export interface _IStrings extends LocalizedStringsMethods {
   score: string;
 
   getSkill(id: number | string): string;
+
+  skillToId: Map<string, number>
 }
 export type IStrings = _IStrings & typeof DEFAULT_LOCALIZED_STRINGS["en"]
 
@@ -69,7 +71,9 @@ const strings: IStrings = Object.assign(
       return (this as any)[skillKey]
           || (DEFAULT_LOCALIZED_STRINGS as any)[skillKey]
           || "Skill not exists";
-    }
+    },
+
+    skillToId: new Map()
   }
 );
 export default strings;
@@ -138,6 +142,8 @@ function init(){
         let skillName = arr[1];
         if(skillName){
           skillsMap["skill" + skillId] = skillName.trim();
+
+          strings.skillToId.set(skillName, parseInt(skillId));
         }
   
         let maxLevel = arr[2];

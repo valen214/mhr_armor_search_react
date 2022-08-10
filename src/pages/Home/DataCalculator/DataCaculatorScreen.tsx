@@ -21,6 +21,7 @@ import { style } from "mylib/util/react_util";
 import CalculatorExportPrompt from "./CalculatorExportPrompt";
 import AddColumnPrompt from "./EditColumnPrompt";
 import EditColumnPrompt from "./EditColumnPrompt";
+import ImportSkillsPrompt from "./components/ImportSkillsPrompt";
 
 const StyledDataCalcScreenRoot = styled.div`
   height: 100%;
@@ -184,7 +185,10 @@ export default function DataCaculatorScreen(){
           </StyledSkillsProfilesContainer>
           <StyledBottomBar>
             <AddColumnPrompt.Button />
-            <Button>Import Skills</Button>
+            <ImportSkillsPrompt.Button onImport={skills => {
+              DEFAULT_CALCULATOR.addSkillsProfile(skills);
+              console.log(skills);
+            }} />
             <Button onClick={() => {
               for(let prof of
                 DEFAULT_CALCULATOR.stat_profiles.values()
