@@ -19,8 +19,13 @@ export type ParamsDescriptionType<noID = false> = (
 } | {
   type: "toggle",
   text: string,
+  suffixText?: string,
+  offStyle?: string | CSSProperties,
+  onStyle?: string | CSSProperties,
+  onValue?: boolean | any,
+  offValue?: boolean | any
   param: keyof ParamsType | string
-  default?: boolean
+  default?: boolean | any
 } | {
   type: "options",
   text: string,
@@ -29,7 +34,8 @@ export type ParamsDescriptionType<noID = false> = (
   options: Array<number | string | {
     text: string,
     value: number | string,
-    default?: boolean
+    default?: boolean,
+    style?: string | CSSProperties,
   }>
 } | {
   /*

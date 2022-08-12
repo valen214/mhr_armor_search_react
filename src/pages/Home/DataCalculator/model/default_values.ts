@@ -98,5 +98,18 @@ export const DEFAULT_PARAMS_DESCRIPTIONS: ParamsDescriptionType<true>[] = [
     text: "powertalon",
     notDeletable: true,
     param: "powertalon",
-  }
+  }, {
+    type: "toggle",
+    notDeletable: true,
+    param: "book",
+
+    default: true,
+    
+    offStyle: "background: rgba(255, 128, 128, 0.5)",
+    text: "Red Book",
+    offValue: "red",
+    onValue: "blue",
+    suffixText: "Blue Book",
+    onStyle: "background: rgba(128, 128, 255, 0.5)",
+  }, 
 ]

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import Home from './pages/Home';
 import MonacoPage from './pages/tests/MonacoPage';
@@ -17,6 +17,7 @@ export default function App() {
             <Route path="" element={<Home />} />
             <Route path="monaco_test" element={<MonacoPage />} />
           </Route>
+          <Route path="" element={<Navigate to="/mhr_armor_search_react" />} />
         </Route>
       </Routes>
     </BrowserRouter>

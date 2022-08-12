@@ -4,6 +4,7 @@ import React, { ChangeEvent, CSSProperties, ReactComponentElement, ReactElement,
 import styled from "styled-components";
 import Collapse from '@mui/material/Collapse';
 import TextField from '@mui/material/TextField';
+import Grid from '@mui/material/Grid';
 
 import Modal from '@mui/material/Modal';
 // '@mui/base/ModalUnstyled';
@@ -263,26 +264,68 @@ export default function ParametersPanel({
                   selecting={selecting}
                   setSelected={setSelected}
                 >
-                  <FormControlLabel
-                    sx={{
-                      minWidth: "120px",
-                    }}
-                    labelPlacement="start"
-                    control={
-                      <Switch
-                        checked={params[desp.param]}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                          let checked = event.target.checked;
-                          setParams({
-                            ...params,
-                            // @ts-ignore
-                            [desp.param]: checked,
-                          });
-                        }}
-                      />
-                    }
-                    label={desp.text}
-                  />
+                  { desp.suffixText ? (
+
+                    <Grid
+                      component="label"
+                      container
+                      alignItems="center"
+                      spacing={1}
+                      style={{
+                        padding: 15
+                      }}
+                    >
+                      <Grid item
+                        style={typeof desp.offStyle === "string" ? (
+                          style(desp.offStyle) ) : desp.offStyle
+                        }
+                      >
+                        {desp.text}
+                      </Grid>
+                      <Grid item>
+                        <Switch
+                          checked={params[desp.param] === desp.onValue}
+                          onChange={(e) => {
+                            let checked = e.target.checked;
+                            setParams({
+                              ...params,
+                              // @ts-ignore
+                              [desp.param]: checked ? (
+                                // @ts-ignore
+                                desp.onValue ) : desp.offValue,
+                            });
+                          }}
+                          value={params[desp.param] === desp.onValue}
+                        />
+                      </Grid>
+                      <Grid item
+                        style={typeof desp.onStyle === "string" ? (
+                          style(desp.onStyle) ) : desp.onStyle
+                        }
+                      >{desp.suffixText}</Grid>
+                    </Grid>
+                  ) : (
+                    <FormControlLabel
+                      sx={{
+                        minWidth: "120px",
+                      }}
+                      labelPlacement="start"
+                      control={
+                        <Switch
+                          checked={params[desp.param]}
+                          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                            let checked = event.target.checked;
+                            setParams({
+                              ...params,
+                              // @ts-ignore
+                              [desp.param]: checked,
+                            });
+                          }}
+                        />
+                      }
+                      label={desp.text}
+                    />
+                  )}
                 </OnEditHoverIndicatorWrapper>
               );
             case "options":
@@ -313,6 +356,9 @@ export default function ParametersPanel({
                       }}
                     >
                       {desp.options.map((v, i) => {
+                        // @ts-ignore
+                        let _style = v?.style || {};
+
                         let text, value;
                         if(typeof v === "number"
                         || typeof v === "string"){
@@ -322,10 +368,15 @@ export default function ParametersPanel({
                           value = v.value;
                         }
 
+                        if(typeof _style === "string"){
+                          _style = style(_style);
+                        }
+
                         return (
                           <MenuItem
                             key={i}
                             value={value}
+                            style={_style}
                           >
                             {text}
                           </MenuItem>

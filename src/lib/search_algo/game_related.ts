@@ -111,6 +111,19 @@ export function status_elem(arg: WorkerArgType){
   elem *= [1, 1, 1, 1.05, 1.1, 1.2][max_elem_lv];
   elem += [0, 2, 3,    4,   4,   4][max_elem_lv];
 
+  if(params?.["book"]){
+    let red = params["book"] === "red";
+
+    if(red && skills?.[113]){
+
+    }
+
+    let blue = params["book"] === "blue";
+    if(blue && skills?.[115]){
+
+    }
+
+  }
  
   return elem;
 }
@@ -118,6 +131,16 @@ export function damage_number_elem(arg: WorkerArgType){
   let { skills, params } = arg;
 
   let elem = status_elem(arg);
+
+  if(params?.absorption_elem || 0 >= 20){
+    if(skills?.[130]){
+      elem *= [ 1.0, 1.1, 1.125, 1.15 ][skills[130]]; // skill 130
+    }
+
+    if(params?.absorption_elem || 0 >= 25){
+      // 屬痛龍珠
+    }
+  }
 
   let motion_value_elem = params!.motion_value_elem!;
   let sharpness_elem = params!.sharpness_elem!;
