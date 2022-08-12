@@ -7,7 +7,7 @@ import { SkillsContext } from "./ManualSearchScreen";
 
 
 // from https://mhrise.wiki-db.com/sim/?hl=en
-const DEFAULT_SKILLS_CATEGORIES = {
+export const DEFAULT_SKILLS_CATEGORIES = {
   quest: [
     34, 94, 32, 104, 105, 33, 80, 79,
     43, 96, 95, 83, 84, 82, 123, 129
@@ -37,7 +37,8 @@ const DEFAULT_SKILLS_CATEGORIES = {
     48, 50, 49, 24, 27, 47, 53, 52, 51, 54, 55, 29, 126
   ],
   set_skill: [
-    110, 109, 100, 101, 102, 111
+    110, 109, 100, 101, 102, 111,
+    118, 119, 120, 130, 132, 134
   ],
   // general_purpose: [],
 }

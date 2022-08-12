@@ -30,3 +30,11 @@ export type WorkerArgType = {
   skills?: Skills,
   params?: ParamsType;
 }
+
+// slots = [0, 0, 0] is also HasSlots
+export type HasSlots = {
+  slots: [ number, number, number ]
+}
+export type HasSkills = {
+  skills: Skills
+}

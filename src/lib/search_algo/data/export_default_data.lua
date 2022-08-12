@@ -171,6 +171,7 @@ end
         local ArmorData = getArmorData:call(nil, PlArmorId);
         local armorDataObj = snow_data_ArmorData_toobject(ArmorData);
         if armorDataObj["hasSkill"] or armorDataObj["getSlotNum"] ~= 0 then
+          armorDataObj["part"] = part;
           outputArmorDataList[tostring(PlArmorId)] = armorDataObj;
         end;
       end;

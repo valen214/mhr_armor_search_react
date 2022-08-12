@@ -177,7 +177,7 @@ score: [
 ]
 */
 type Equipable = HasSkills & HasSlots & { [key: string]: any };
-
+type Evaluation = [ number, number, number, number, number, number ]
 type PartString = "head" | "chest" | "gloves" | "waist" | "legs" | "charms";
 export class ArmorSearch
 {
@@ -191,7 +191,7 @@ export class ArmorSearch
     new Map<number, Equipable> (),
     new Map<number, Equipable> (),
   ];
-  evaluations = new Map<number, number> ();
+  evaluations = new Map<number, Evaluation> ();
 
   sorted: Record<PartString, Array<number>> = {
     head: [],
@@ -219,7 +219,7 @@ export class ArmorSearch
       slots: [0, 0, 0],
       name: "None"
     }))
-    this.evaluations.set(0, 0);
+    this.evaluations.set(0, [0, 0, 0, 0, 0, 0]);
 
     for(let i of [0, 1, 2, 3, 4, 5]){
       this.add({
@@ -244,105 +244,71 @@ export class ArmorSearch
     this.sorted[part].push(id)
 
     this.sorted[part].sort((a, b) => (
-      this.higherEvaluation(
+      this.compareEvaluation(
         this.evaluations.get(b)!,
         this.evaluations.get(a)!
-      ) ? 1 : -1
+      )
     ));
+
+    return id;
   }
 
   evaluate({
     skills, slots
-  }: Equipable){
+  }: Equipable): Evaluation{
 
-    let evaluation = [0, 0, 0];
+    let evaluation: Evaluation = [ 0, 0, 0, 0, 0, 0 ];
     for(let [ key, lv ] of Object.entries(skills)){
       let id = parseInt(key);
 
-      if(LV4_SKILLS_ONLY_ON_LV4.has(id)){
-        evaluation[1] += 0x10000 * lv
-      } else if(LV3_SKILLS_ONLY_ON_LV3.has(id)){
-        evaluation[1] += 0x01000 * lv
-      } else if(LV2_SKILLS_ONLY_ON_LV2.has(id)){
-        evaluation[1] += 0x00010 * lv
-      } else if(LV1_SKILLS_ONLY_ON_LV1.has(id)){
-        evaluation[1] += 0x00001 * lv
-
-      } else if(SKILLS_NOT_ON_DECO.has(id)){
-        evaluation[0] += lv;
-      } else{
-        evaluation[2] += lv; // ?????????
+      switch(true){
+      case LV4_SKILLS_ONLY_ON_LV4.has(id): evaluation[4] += lv; break;
+      case LV3_SKILLS_ONLY_ON_LV3.has(id): evaluation[3] += lv; break;
+      case LV2_SKILLS_ONLY_ON_LV2.has(id): evaluation[2] += lv; break;
+      case LV1_SKILLS_ONLY_ON_LV1.has(id): evaluation[1] += lv; break;
+      case SKILLS_NOT_ON_DECO.has(id): evaluation[5] += lv; break;
+      default:
+        evaluation[0] = [
+          LV4_DECO, LV3_DECO, LV2_DECO, LV1_DECO
+        ].map(decos => {
+          if(Object.hasOwn(decos, id)){
+            // @ts-ignore
+            return 1 / decos[id];
+          }
+          return 0;
+        }).reduce((l, r) => l < r ? l : r) * lv;
       }
     }
 
     // console.log(evaluation[0], SKILLS_NOT_ON_DECO);
 
     for(let lv of slots){
-      evaluation[1] += [
-        0,
-        0x00001,
-        0x00010,
-        0x01000,
-        0x10000
-      ][lv];
+      if(!lv) continue;
+      evaluation[lv] += 1;
     }
 
-    let out = evaluation[0] * (1 << 28) +
-        (((0xfffff & evaluation[1]) << 8) | (evaluation[2]));
-
-    console.log(skills, evaluation, out.toString(16), (evaluation[0] * ( 1 << 28)).toString(16));
-    return out;
+    return evaluation;
     // return evaluation.reduce((l, r) => (l << 8) | r);
 
   }
-  higherEvaluation(a: number, b: number){
-    const _log = (...args: any[]) => {
-      console.log("[higherEvaluation]", ...args);
+  compareEvaluation(a: Evaluation, b: Evaluation): number {
+
+    if(a[5] !== b[5]){
+      return a[5] - b[5];
     }
     
-    if((a >> 28) < (b >> 28)) return false;
-
-    let c = (a >> 8) & 0xfffff;
-    let d = (b >> 8) & 0xfffff;
-
-    let e = c >> 16; // no. of Lv4
-    let f = d >> 16; 
-
-    _log("a, b, c, d, e, f", [a, b, c, d, e, f].map(n => n.toString(16)))
-
-    if(e < f) return false;
-
-    e += (c >> 12) & 0xf; // no. of Lv3+4
-    f += (d >> 12) & 0xf;
-
-    _log("a, b, c, d, e, f", [a, b, c, d, e, f].map(n => n.toString(16)))
-    if(e < f) return false;
-
-    e += (c >> 4) & 0xff; // no. of Lv2+3+4
-    f += (d >> 4) & 0xff;
-
-    _log("a, b, c, d, e, f", [a, b, c, d, e, f].map(n => n.toString(16)))
-    if(e < f) return false;
-
-    e += c & 0xf;        // no. of Lv1+2+3+4
-    f += d & 0xf;
-    _log("a, b, c, d, e, f", [a, b, c, d, e, f].map(n => n.toString(16)))
-
-    if(e < f) return false;
-
-    let g = c - d; // 0xfffff
-    let h = (
-      (g & 0xf0000) * 8 +
-      (g & 0x0f000) * 4 +
-      (g & 0x00ff0) * 2 +
-      (g & 0x0000f) * 1
-    )
-
-    if((a & 0xff) + h < (b & 0xff)){
-      return false;
+      let c = 0;
+    for(let i = 4; i >= 1; --i){
+      c += a[i] - b[i];
+      if(c < 0) return c;
     }
+    
+    return a[0] + c - b[0];
 
-    return true;
+
+  }
+  higherEvaluation(a: Evaluation, b: Evaluation): boolean{
+    return this.compareEvaluation(a, b) >= 0;
   }
 
   search(skills: Skills, {
@@ -373,18 +339,8 @@ export class ArmorSearch
       slots: [0, 0, 0]
     });
   
-    let max_evals = ([
-      "head", "chest", "gloves", "waist", "legs", "charms",
-    ] as PartString[]).map(
-      k => this.evaluations.get(this.sorted[k][0])!
-    )
-    let max_eval_suff = max_evals.reduceRight((r, l) => {
-      r.unshift(r[0] + l);
-      return r;
-    }, [ 0 ]);
-    max_eval_suff.pop();
 
-    let builds_found = [];
+    let builds_found: number[][] = [];
 
 
     const sorted = ([
@@ -429,6 +385,39 @@ export class ArmorSearch
       arr.push(0);
     });
     console.log("SEARCH POOL:", sorted);
+
+    sorted.forEach(arr => {
+      console.log(this.evaluations.get(arr[0]));
+    });
+
+    let max_evals = Array(6).fill(0).map(_ => Array(6).fill(0) as Evaluation)
+    for(let i = 0; i < 6; ++i){
+      let maxEval = Array(6).fill(0) as Evaluation;
+
+      let arr = sorted[i];
+      for(let j = 0; j < arr.length; ++j){
+        let tryEval = this.evaluations.get(arr[j]);
+        if(tryEval === null || tryEval === undefined){
+          throw new Error(arr[j] + " is not evaluated")
+        }
+        
+        for(let k = 0; k < 6; ++k){
+          maxEval[k] = Math.max(maxEval[k], tryEval[k]);
+        }
+
+      }
+
+      max_evals[i] = maxEval;
+
+    }
+    let max_eval_suff = max_evals.reduceRight((r, l) => {
+      let out = r[0].slice()
+      for(let i = 0; i < 6; ++i){
+        out[i] += l[i]
+      }
+      r.unshift(out);
+      return r;
+    }, [ [ 0, 0, 0, 0, 0, 0 ] ]);
 
 
 
@@ -637,52 +626,57 @@ export class ArmorSearch
       })(hasSlots, needSkills, 0);
     };
 
-    console.log(max_evals.map(n => n.toString(16)));
-    console.log("max_eval_suff:", max_eval_suff.map(n => n.toString(16)));
-    console.log(sorted.map(arr => arr[0]));
-    console.log(sorted.map(arr => arr[0]).map(id => this.evaluations.get(id)));
-    console.log(sorted.map(arr => arr[0]).map((id, i) => this.store[i].get(id)));
-    console.log(required_eval.toString(16));
+    console.log("max_eval_suff:", max_eval_suff, max_evals);
+    // console.log(sorted.map(arr => arr[0]));
+    // console.log(sorted.map(arr => arr[0]).map(id => this.evaluations.get(id)));
+    // console.log(sorted.map(arr => arr[0]).map((id, i) => this.store[i].get(id)));
+    // console.log(required_eval.toString(8));
 
     let buildsAttemped = 0
     
     let fillSlotsTime = 0;
 
-    const higherEvaluation = self.higherEvaluation;
-    ;(function innerSearch(
+
+    const higherEvaluation = self.higherEvaluation.bind(self);
+    function innerSearch(
       currentLevel: number,
-      current_eval: number,
+      current_eval: Evaluation,
       selected = [ 0, 0, 0, 0, 0, 0 ]
     ){
       const _log = (...args: any[]) => {
-        console.log("[innerSearch]", ...args);
+        // console.info("[innerSearch]", ...args);
       }
-      _log("new call:", currentLevel, current_eval.toString(16), selected);
+      _log("new call:", currentLevel, current_eval, selected);
 
 
       if(builds_found.length >= max_build){
         return false;
       }
 
+      if(!higherEvaluation(
+        current_eval.map((e, i) => {
+          return e + max_eval_suff[currentLevel][i] + (
+            (currentLevel === 5 ? 0 : max_eval_suff[currentLevel+1][i])
+          )
+        }) as Evaluation,
+        required_eval,
+      )){
+
+        _log(
+          "terminate early:",
+          currentLevel,
+          current_eval,
+          max_eval_suff[currentLevel+1],
+          required_eval
+        );
+        return false;
+      }
+
 
       for(let id of sorted[currentLevel]){
         let self_eval = self.evaluations.get(id)!;
-        
-        if(!higherEvaluation(
-          current_eval +
-          self_eval +
-          currentLevel === 5 ? 0 : max_eval_suff[currentLevel+1],
-          required_eval,
-        )){
 
-          _log(
-            "terminate early:",
-            currentLevel.toString(16),
-            current_eval.toString(16),
-            max_eval_suff[currentLevel+1].toString(16),
-            required_eval.toString(16))
-          return false;
-        }
+        
 
         if(currentLevel === 5){
           buildsAttemped++;
@@ -701,10 +695,11 @@ export class ArmorSearch
         }
   
           
-
         let keepGoing = innerSearch(
           currentLevel + 1,
-          current_eval + self_eval,
+          current_eval.map((e, i) => {
+            return e + self_eval[i]
+          }) as Evaluation,
           selected.map((e, i) => i === currentLevel ? id : e)
         )
         if(!keepGoing){
@@ -714,7 +709,9 @@ export class ArmorSearch
 
       return true;
 
-    })(0, 0);
+    }
+    
+    innerSearch(0, [0, 0, 0, 0, 0, 0]);
 
     console.log(
       "buildsAttempted:", buildsAttemped,
@@ -730,6 +727,7 @@ export class ArmorSearch
 console.time("init");
 import default_data from "./data/default_data.json";
 
+let LIMITED = false;
 
 let a = new ArmorSearch();
 for(let {
@@ -738,7 +736,7 @@ for(let {
   slots,
   name
 } of Object.values(default_data.armors)){
-  if(![
+  if(LIMITED && [
     "妃蜘蛛X頭盔",
     "禍鎧･怨【胸甲】",
     "禍鎧･怨【臂甲】",
@@ -747,8 +745,8 @@ for(let {
   ].includes(name)){
     continue;
   }
-
-  a.add({
+  
+  let id = a.add({
     part,
     skills: JSON.parse(skills_id.replaceAll(/\d+:/g, (g0) => `"${g0}":`)),
     slots: slots as [ number, number, number ],
@@ -763,7 +761,7 @@ let f = fs.readFileSync(
   }
 );
 for(let line of f.split("\n")){
-  if(1) continue;
+  if(LIMITED) continue;
 
   line = line.trim()
   if(!line) continue;
@@ -789,13 +787,14 @@ for(let line of f.split("\n")){
 }
 console.timeEnd("init");
 
+
 console.time("search");
-let searchFor = { '11': 3, '29': 1, '49': 2, '50': 3, '115': 3, '117': 1 };
+let searchFor = { '1': 4, '11': 3, '29': 1, '49': 2, '50': 3, '115': 3, '117': 1 };
 let result = a.search(searchFor);
 console.log("searching for: ", searchFor, a.evaluate({
   skills: searchFor,
   slots: [0, 0, 0]
-}).toString(16));
+}));
 for(let set of result.slice(-2)){
   console.log(
     set.map((id, i) => {
@@ -822,3 +821,14 @@ let out = transformSkillsKeyToId({
 })
 console.log(out);
 
+
+console.log(a.higherEvaluation([ 0, 0, 2, 1, 0, 1 ], [ 0, 0, 0, 4, 1, 0 ]))
+
+;[
+  470, 510, 473, 432, 433, 337,
+    338, 326, 307, 426, 449, 450,
+    443, 525, 502, 532, 305, 497,
+    498, 485, 304, 306
+].forEach(id => {
+  // console.log(a.evaluations.get(id), a.store[1].get(id))
+})

@@ -16,6 +16,10 @@ deploy:
 run:
 	yarn run start
 
+
+search:
+	yarn ts-node src\lib\search_algo\search.ts
+
 try:
 	yarn rollup -c game_related.rollup.config.js
 	copy dist\game-related.js public

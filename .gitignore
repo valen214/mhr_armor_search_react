@@ -28,6 +28,11 @@ yarn.lock
 
 ####################
 
+src/lib/search_algo/data/*.ts
+src/lib/search_algo/data/*.csv
+src/lib/search_algo/data/default_data.json
+
+
 # bin
 .rollup.cache
 .rollup.cache/*

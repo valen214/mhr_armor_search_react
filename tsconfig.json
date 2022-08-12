@@ -21,7 +21,7 @@
     "isolatedModules": true,
     "noEmit": false,
     "jsx": "react-jsx",
-    "composite": true,
+    // "composite": true,
     "declaration": true,
     "declarationMap": true,
 
@@ -41,10 +41,12 @@
     */
   ],
   "include": [
-    "src"
+    "src/**/*",
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/lib/mylib/**/*",
+    "src/lib/search_algo/demo"
   ],
   "ts-node": {
     // these options are overrides used only by ts-node
